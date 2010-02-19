@@ -45,6 +45,9 @@ sub new {
         if ( defined $args->{start_dir} ) {
             croak "Directory $args->{start_dir} not found"
                 unless (-d $args->{start_dir} );
+            croak "Directory $args->{start_dir} must be subdirectory of $data{id_dir}"
+                unless ( $args->{start_dir} =~ m/$data{id_dir}/ );
+            $data{start_dir} = $args->{start_dir};;
         }
         else {
             $data{start_dir} = $data{minicpan};

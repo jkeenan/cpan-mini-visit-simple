@@ -11,6 +11,7 @@ WriteMakefile(
     PREREQ_PM    => {
                      'CPAN::Mini'   => 0,
                      'File::Find'   => 0,
+                     'File::Path'   => 2.06,
                      'File::Temp'   => 0.14,
                      'Path::Class'  => 0,
                      'Scalar::Util' => 0,
