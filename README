@@ -1,0 +1,11 @@
+README for Perl extension CPAN-Mini-Visit-Simple
+
+CPAN::Mini::Visit::Simple - Lightweight traversal of a minicpan repository.
+This is a variant on David Golden's App-CPAN-Mini-Visit.
+
+perl Makefile.PL
+make
+make test
+make install
+
+If you are on a windows box you should use 'nmake' rather than 'make'.
