@@ -5,12 +5,15 @@
 use Carp;
 use File::Path qw( make_path );
 use File::Temp qw( tempdir );
-use Path::Class qw( dir );
-use Test::More qw(no_plan); # tests =>  3;
+use Path::Class::Dir;
+use Test::More tests =>  5;
 
 BEGIN { use_ok( 'CPAN::Mini::Visit::Simple' ); }
 
 my ( $self, $phony_minicpan, $tdir, $id_dir );
+
+$self = CPAN::Mini::Visit::Simple->new();
+isa_ok ($self, 'CPAN::Mini::Visit::Simple');
 
 $self = CPAN::Mini::Visit::Simple->new({});
 isa_ok ($self, 'CPAN::Mini::Visit::Simple');
@@ -26,7 +29,7 @@ like($@, qr/Directory $phony_minicpan not found/,
 
 {
     $tdir = tempdir();
-    $id_dir = dir($tdir, qw/authors id/);
+    $id_dir = Path::Class::Dir->new($tdir, qw/authors id/);
     eval {
         $self = CPAN::Mini::Visit::Simple->new({
             minicpan => $tdir,
