@@ -5,9 +5,9 @@
 use CPAN::Mini::Visit::Simple;
 use Carp;
 use File::Path qw( make_path );
+use File::Spec;
 use File::Temp qw( tempdir );
 use IO::CaptureOutput qw( capture );
-use Path::Class::Dir;
 use Test::More tests => 23;
 
 my ( $self, $rv, @list, $phony_minicpan, $tdir, $id_dir );
@@ -65,10 +65,10 @@ like($@, qr/Directory $phony_minicpan not found/,
 {
     $tdir = tempdir();
     ok( -d $tdir, "tempdir directory created for testing" );
-    $id_dir = Path::Class::Dir->new($tdir, qw/authors id/);
+    $id_dir = File::Spec->catdir($tdir, qw/authors id/);
     make_path($id_dir, { mode => 0711 });
     ok( -d $id_dir, "'authors/id' directory created for testing" );
-    my $phony_start_dir = Path::Class::Dir->new($tdir, qw/foo bar/);
+    my $phony_start_dir = File::Spec->catdir($tdir, qw/foo bar/);
     make_path($phony_start_dir, { mode => 0711 });
     ok( -d $phony_start_dir, "'start_dir' directory created for testing" );
     $self = CPAN::Mini::Visit::Simple->new({
@@ -87,10 +87,10 @@ like($@, qr/Directory $phony_minicpan not found/,
 {
     $tdir = tempdir();
     ok( -d $tdir, "tempdir directory created for testing" );
-    $id_dir = Path::Class::Dir->new($tdir, qw/authors id/);
+    $id_dir = File::Spec->catdir($tdir, qw/authors id/);
     make_path($id_dir, { mode => 0711 });
     ok( -d $id_dir, "'authors/id' directory created for testing" );
-    my $start_dir = Path::Class::Dir->new($id_dir, qw/foo bar/);
+    my $start_dir = File::Spec->catdir($id_dir, qw/foo bar/);
     make_path($start_dir, { mode => 0711 });
     ok( -d $start_dir, "'start_dir' directory created for testing" );
     $self = CPAN::Mini::Visit::Simple->new({
@@ -98,9 +98,9 @@ like($@, qr/Directory $phony_minicpan not found/,
     });
     isa_ok ($self, 'CPAN::Mini::Visit::Simple');
     $self->identify_distros({
-        start_dir => $start_dir->stringify,
+        start_dir => $start_dir,
     });
-    is( $self->{'start_dir'}, $start_dir->stringify,
+    is( $self->{'start_dir'}, $start_dir,
         "'start_dir' assigned as expected" );
 }
 

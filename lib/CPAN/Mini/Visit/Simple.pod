@@ -1,0 +1,188 @@
+=head1 NAME
+
+CPAN::Mini::Visit::Simple - Lightweight traversal of a minicpan repository
+
+=head1 SYNOPSIS
+
+    use CPAN::Mini::Visit::Simple;
+    $self = CPAN::Mini::Visit::Simple->new({});
+    $self->identify_distros();
+
+=head1 DESCRIPTION
+
+This Perl extension is a variant on David Golden's App-CPAN-Mini-Visit.  It
+can be used in the following circumstances:
+
+=head1 SUBROUTINES
+
+=head2 C<new()>
+
+=cut 
+
+=over 4
+
+=item * Purpose
+
+CPAN::Mini::Visit::Simple constructor.  While it cannot verify that you have a
+complete minicpan repository on disk, it does check that the most essential
+directories are present.
+
+=item * Arguments
+
+    $self = CPAN::Mini::Visit::Simple->new({
+        minicpan => $phony_minicpan,    # optional
+    });
+
+Optional single hash reference.  That hash should have a C<minicpan> element
+whose value is the absolute path to your minicpan repository.
+
+If called with no arguments, the constructor will use the value of the
+C<local> key-value pair in your F<.minicpanrc> file.
+
+=item * Return Value
+
+CPAN::Mini::Visit::Simple object.
+
+=back
+
+=head2 C<identify_distros()>
+
+=cut 
+
+=over 4
+
+=item * Purpose
+
+Prepare the list of distributions in the minicpan repository which will be
+visited.
+
+=item * Arguments
+
+May be called in any of the following two mutually exclusive ways:
+
+=over 4
+
+=item 1 No arguments
+
+    $self->identify_distros();
+
+Will add all distributions found in the minicpan repository to the list of
+distributions to be visited.
+
+=item 2 Single hash reference
+
+You may provide a hash reference with B<one> of several elements.  These
+elements are mutually exclusive and are listed in descending order of
+priority.
+
+=over 4
+
+=item * C<list>
+
+    $minicpan_id_dir = '/home/user/minicpan/authors/id';
+    $rv = $self->identify_distros( {
+      list => [ 
+        "$minicpan_id_dir/D/DR/DROLSKY/Alzabo-0.92.tar.gz",
+        "$minicpan_id_dir/D/DR/DROLSKY/DateTime-0.53.tar.gz",
+        "$minicpan_id_dir/D/DR/DROLSKY/Params-Validate-0.95.tar.gz",
+      ],
+    } );
+
+If a C<list> element is used, its value must be a reference to an array
+holding an exact list of the minicpan distributions to be visited.
+
+=item * C<start_dir>
+
+    $rv = $self->identify_distros( {
+      start_dir   => "$minicpan_id_dir/D/DR/DROLSKY",
+    } );
+
+If a C<list> element is not provided but a C<start_dir> element is provided,
+its value must be an absolute path to a directory inside the minicpan
+repository that is below the F<authors/id/> directory.  The list of
+distributions to be visited will consist of all distributions below that point
+in the minicpan.
+
+=item * C<pattern>
+
+    $rv = $self->identify_distros( {
+      pattern   => qr/Moose/,
+    } );
+
+If a C<list> element is provided but a C<pattern>
+element is provided, its value must be a compiled regular expression.  The
+list of distributions to be visited will consist of all distributions in the
+minicpan whose paths match that pattern.
+
+=item * Combination of C<start_dir> and C<pattern>
+
+    $rv = $self->identify_distros( {
+      start_dir   => "$minicpan_id_dir/D/DR/DROLSKY",
+      pattern   => qr/Moose/,
+    } );
+
+You may provide B<both> a C<start_dir> element and a C<pattern>
+element.  In this case, the C<start_dir> element takes precedence, I<i.e.,>
+the list of distributions to be visited will consist of all distributions
+below the C<start_dir> which also match the C<pattern>.
+
+=back
+
+=back
+
+=item * Return Value
+
+Returns true value -- though this is not particularly meaningful.  The list of
+distributions to be visited will be stored inside the object and can be
+accessed by other methods.
+
+=back
+
+=head2 C<say_list()>
+
+=over 4
+
+=item * Purpose
+
+Prints to STDOUT a list of distributions to be visited.
+
+=item * Arguments
+
+    $self->say_list();
+
+None.
+
+=item * Return Value
+
+Implicitly returns true value.
+
+=back
+
+=head1 BUGS
+
+Report bugs at
+F<https://rt.cpan.org/Public/Bug/Report.html?Queue=CPAN-Mini-Visit-Simple>.
+
+=head1 AUTHOR
+
+    James E Keenan
+    CPAN ID: jkeenan
+    Perl Seminar NY
+    jkeenan@cpan.org
+    http://thenceforward.net/perl/modules/CPAN-Mini-Visit-Simple/
+
+=head1 COPYRIGHT
+
+This program is free software; you can redistribute
+it and/or modify it under the same terms as Perl itself.
+
+The full text of the license can be found in the
+LICENSE file included with this module.
+
+
+=head1 SEE ALSO
+
+perl(1).  App-CPAN-Mini-Visit.  CPAN-Mini.
+
+=cut
+
