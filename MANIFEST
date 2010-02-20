@@ -1,8 +1,10 @@
-MANIFEST
-README
-LICENSE
-Todo
 Changes
-Makefile.PL
 lib/CPAN/Mini/Visit/Simple.pm
+LICENSE
+Makefile.PL
+MANIFEST
+MANIFEST.SKIP
+README
 t/001_new.t
+t/002_identify_distros.t
+Todo

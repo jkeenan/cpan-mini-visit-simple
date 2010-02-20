@@ -19,7 +19,6 @@ sub new {
     if ( ! $args->{minicpan} ) {
         my %config = CPAN::Mini->read_config;
         if (  $config{local} ) {
-#    print STDERR Dumper \%config;
             $data{minicpan} = $config{local};
         }
     }
@@ -32,34 +31,37 @@ sub new {
     my $id_dir = dir($data{minicpan}, qw/authors id/);
     croak "Absence of $id_dir implies no valid minicpan"
         unless -d $id_dir;
-    $data{id_dir} = $id_dir;
+    $data{id_dir} = $id_dir->stringify;
+
+    my $self = bless \%data, $class;
+    return $self;
+}
+
+sub identify_distros {
+    my ($self, $args) = @_;
 
     if ( defined $args->{list} ) {
         croak "Value of 'list' must be array reference"
             unless reftype($args->{list}) eq 'ARRAY';
         croak "Value of 'list' must be non-empty"
             unless scalar(@{$args->{list}});
-        $data{list} = $args->{list};
+        $self->{list} = $args->{list};
     }
-    if ( ! exists $data{list} ) {
+    if ( ! exists $self->{list} ) {
         if ( defined $args->{start_dir} ) {
             croak "Directory $args->{start_dir} not found"
                 unless (-d $args->{start_dir} );
-            croak "Directory $args->{start_dir} must be subdirectory of $data{id_dir}"
-                unless ( $args->{start_dir} =~ m/$data{id_dir}/ );
-            $data{start_dir} = $args->{start_dir};;
+            croak "Directory $args->{start_dir} must be subdirectory of $self->{id_dir}"
+                unless ( $args->{start_dir} =~ m/$self->{id_dir}/ );
+            $self->{start_dir} = $args->{start_dir};;
         }
         else {
-            $data{start_dir} = $data{minicpan};
+            $self->{start_dir} = $self->{minicpan};
         }
     }
-
-    my $self = bless \%data, $class;
-    return $self;
 }
 
 1;
-# The preceding line will help the module return a true value
 
 =head1 NAME
 
