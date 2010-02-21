@@ -5,7 +5,7 @@
 use CPAN::Mini::Visit::Simple::Auxiliary qw(
     normalize_version_number
 );
-use Test::More tests =>  5;
+use Test::More tests =>  8;
 
 my @got = ();
 my ($expected, $vn);
@@ -181,6 +181,19 @@ is( normalize_version_number($vn), '3.00002',
 $vn = '.002.9';
 is( normalize_version_number($vn), '0.0000200009',
     "Got expected normalization for $vn" );
+
+$vn = 'v0.2.2';
+is( normalize_version_number($vn), '0.0000200002',
+    "Got expected normalization for $vn" );
+
+$vn = 'v2.2.2';
+is( normalize_version_number($vn), '2.0000200002',
+    "Got expected normalization for $vn" );
+
+$vn = 'v.2.2';
+is( normalize_version_number($vn), '0.0000200002',
+    "Got expected normalization for $vn" );
+
 
 
 __DATA__

@@ -52,6 +52,7 @@ sub dedupe_superseded {
 sub normalize_version_number {
     my $v = shift;
     my @captures = split /\./, $v;
+    $captures[0] =~ s/^v//;
     my $normalized;
     if ( $captures[0] eq q{} ) {
         $normalized = 0;
