@@ -1,5 +1,6 @@
 Changes
 lib/CPAN/Mini/Visit/Simple.pm
+lib/CPAN/Mini/Visit/Simple.pod
 lib/CPAN/Mini/Visit/Simple/Auxiliary.pm
 LICENSE
 Makefile.PL
@@ -8,4 +9,6 @@ MANIFEST.SKIP
 README
 t/001_new.t
 t/002_identify_distros.t
+t/003_dedupe_superseded.t
+t/004_normalize_version_number.t
 Todo

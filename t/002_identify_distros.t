@@ -9,7 +9,7 @@ use File::Spec;
 use File::Temp qw( tempfile tempdir );
 use IO::CaptureOutput qw( capture );
 use Tie::File;
-use Test::More qw(no_plan); # tests => 23;
+use Test::More tests => 26;
 
 my ( $self, $rv, @list, $phony_minicpan, $tdir, $id_dir );
 

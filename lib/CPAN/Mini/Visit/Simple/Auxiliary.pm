@@ -9,6 +9,7 @@ our @EXPORT_OK = qw(
 );
 use File::Basename;
 use File::Spec;
+use Scalar::Util qw( looks_like_number );
 
 sub dedupe_superseded {
     my $listref = shift;
@@ -51,8 +52,15 @@ sub dedupe_superseded {
 sub normalize_version_number {
     my $v = shift;
     my @captures = split /\./, $v;
-    my $normalized = "$captures[0].";
-    $normalized =~ s/^0+?(\d+\.)/$1/;
+    my $normalized;
+    if ( $captures[0] eq q{} ) {
+        $normalized = 0;
+    }
+    else {
+        $normalized = 0+$captures[0];
+    }
+
+    $normalized .= '.';
     for my $cap (@captures[1..$#captures]) {
         $normalized .= sprintf("%05d", $cap);
     }
