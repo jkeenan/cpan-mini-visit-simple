@@ -160,6 +160,67 @@ Implicitly returns true value.
 
 =back
 
+=head2 C<get_list()>
+
+=over 4
+
+=item * Purpose
+
+Get the set of distributions resulting from the operation of
+C<identify_distros()>.
+
+=item * Arguments
+
+    @output_list = $self->get_list();  # list context
+
+or
+
+    $output_list = $self->get_list();  # scalar context
+
+No arguments needed.  All information, if available, is inside the object.
+
+=item * Return Value
+
+List context:  List of distributions if the underlying set exists in the
+object; undefined otherwise.
+
+Scalar context:  Number of elements if the underlying set exists in the
+object; undefined otherwise.
+
+=item * Comment
+
+Because of the deduplication feature of C<identify_distros>, the order of
+elements in the list returned cannot be guaranteed.
+
+=back
+
+=head2 C<get_list_ref()>
+
+=over 4
+
+=item * Purpose
+
+Get a reference to the set of distributions resulting from the operation of
+C<identify_distros()>.
+
+=item * Arguments
+
+    $output_ref = $self->get_list_ref();
+
+No arguments needed.  All information, if available, is inside the object.
+
+=item * Return Value
+
+Array reference if the underlying set exists in the object; undefined
+otherwise.
+
+=item * Comment
+
+Because of the deduplication feature of C<identify_distros>, the order of
+elements in the list underneath the reference returned cannot be guaranteed.
+
+=back
+
 =head1 BUGS
 
 Report bugs at
@@ -185,6 +246,22 @@ LICENSE file included with this module.
 =head1 SEE ALSO
 
 perl(1).  App-CPAN-Mini-Visit.  CPAN-Mini.
+
+=cut
+
+
+__END__
+=head2 C<new()>
+
+=over 4
+
+=item * Purpose
+
+=item * Arguments
+
+=item * Return Value
+
+=back
 
 =cut
 

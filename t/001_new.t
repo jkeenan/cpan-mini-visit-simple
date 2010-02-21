@@ -1,6 +1,6 @@
 # -*- perl -*-
 
-# t/001_new.t - check module loading and create testing directory
+# t/001_new.t
 
 use Carp;
 use File::Path qw( make_path );

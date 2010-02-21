@@ -1,6 +1,6 @@
 # -*- perl -*-
 
-# t/00_identify_distros.t - check module loading and create testing directory
+# t/002_identify_distros.t
 
 use CPAN::Mini::Visit::Simple;
 use Carp;

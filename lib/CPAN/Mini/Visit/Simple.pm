@@ -104,20 +104,17 @@ sub say_list {
     }
 }
 
+sub get_list {
+    my ($self) = @_;
+    return unless defined $self->{list};
+    return @{$self->{list}};
+}
+
+sub get_list_ref {
+    my ($self) = @_;
+    return unless defined $self->{list};
+    return $self->{list};
+}
+
+
 1;
-
-__END__
-=head2 C<new()>
-
-=cut 
-
-=over 4
-
-=item * Purpose
-
-=item * Arguments
-
-=item * Return Value
-
-=cut
-
