@@ -1,5 +1,6 @@
 Changes
 lib/CPAN/Mini/Visit/Simple.pm
+lib/CPAN/Mini/Visit/Simple/Auxiliary.pm
 LICENSE
 Makefile.PL
 MANIFEST

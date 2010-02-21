@@ -17,8 +17,6 @@ can be used in the following circumstances:
 
 =head2 C<new()>
 
-=cut 
-
 =over 4
 
 =item * Purpose
@@ -46,8 +44,6 @@ CPAN::Mini::Visit::Simple object.
 =back
 
 =head2 C<identify_distros()>
-
-=cut 
 
 =over 4
 
@@ -144,13 +140,19 @@ accessed by other methods.
 
 =item * Purpose
 
-Prints to STDOUT a list of distributions to be visited.
+Prints a list of distributions to be visited.
 
 =item * Arguments
 
     $self->say_list();
 
-None.
+or
+
+    $self->say_list( { file => /path/to/list } );
+
+Optional single hashref.  Hash must have C<file> element whose value is
+absolute path to a file to which list is written.  Otherwise, output is simply
+sent to STDOUT.
 
 =item * Return Value
 

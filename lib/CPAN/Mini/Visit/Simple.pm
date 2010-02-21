@@ -11,6 +11,9 @@ use CPAN::Mini ();
 use File::Find;
 use File::Spec;
 use Scalar::Util qw/ reftype /;
+use CPAN::Mini::Visit::Simple::Auxiliary qw(
+    dedupe_superseded
+);
 
 sub new {
     my ($class, $args) = @_;
@@ -44,7 +47,7 @@ sub identify_distros {
             unless reftype($args->{list}) eq 'ARRAY';
         croak "Value of 'list' must be non-empty"
             unless scalar(@{$args->{list}});
-        $self->{list} = $args->{list};
+        $self->{list} = dedupe_superseded( $args->{list} );
         return 1;
     }
 
@@ -81,13 +84,24 @@ sub identify_distros {
         },
         $self->{start_dir},
     );
-    $self->{list} = \@found;
+    $self->{list} = dedupe_superseded( \@found );
     return 1;
 }
 
 sub say_list {
-    my ($self) = @_;
-    say $_ for @{$self->{list}};
+    my ($self, $args) = @_;
+    if (not defined $args) {
+        say $_ for @{$self->{list}};
+    }
+    else {
+        croak "Argument must be hashref" unless reftype($args) eq 'HASH';
+        croak "Need 'file' element in hashref" unless exists $args->{file};
+        open my $FH, '>', $args->{file}
+            or croak "Unable to open handle to $args->{file} for writing";
+        say $FH $_ for @{$self->{list}};
+        close $FH
+            or croak "Unable to close handle to $args->{file} after writing";
+    }
 }
 
 1;

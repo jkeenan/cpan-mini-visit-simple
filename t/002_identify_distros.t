@@ -6,9 +6,10 @@ use CPAN::Mini::Visit::Simple;
 use Carp;
 use File::Path qw( make_path );
 use File::Spec;
-use File::Temp qw( tempdir );
+use File::Temp qw( tempfile tempdir );
 use IO::CaptureOutput qw( capture );
-use Test::More tests => 23;
+use Tie::File;
+use Test::More qw(no_plan); # tests => 23;
 
 my ( $self, $rv, @list, $phony_minicpan, $tdir, $id_dir );
 
@@ -31,14 +32,16 @@ eval {
 like($@, qr/Value of 'list' must be non-empty/,
     "Got expected error message for bad 'list' value -- must be non-empty array ref" );
 
-@list = qw(
-    /home/user/minicpan/authors/id/A/AA/AARDVARK/Alpha-Beta-0.01-tar.gz
-    /home/user/minicpan/authors/id/A/AA/AARDVARK/Gamma-Delta-0.02-tar.gz
-    /home/user/minicpan/authors/id/A/AA/AARDVARK/Epsilon-Zeta-0.03-tar.gz
-);
-ok( $self->identify_distros({ list => \@list, }),
-    "identify_distros() returned true value" );
 {
+    $self = CPAN::Mini::Visit::Simple->new({});
+    @list = qw(
+        /home/user/minicpan/authors/id/A/AA/AARDVARK/Alpha-Beta-0.01-tar.gz
+        /home/user/minicpan/authors/id/A/AA/AARDVARK/Gamma-Delta-0.02-tar.gz
+        /home/user/minicpan/authors/id/A/AA/AARDVARK/Epsilon-Zeta-0.03-tar.gz
+    );
+    ok( $self->identify_distros({ list => \@list, }),
+        "identify_distros() returned true value" );
+
     my ($stdout, $stderr);
     capture(
         sub { $self->say_list(); },
@@ -50,6 +53,33 @@ ok( $self->identify_distros({ list => \@list, }),
         $seen++ if $stdout =~ m/$el/;
     }
     is( $seen, scalar(@list), "All distro names seen on STDOUT" );
+
+    my %list_seen = map { $_ => 1 } @list;
+    my ($fh, $tfile) = tempfile();
+    $self->say_list( { file => $tfile } );
+    my @lines;
+    my $nonmatch = 0;
+    tie @lines, 'Tie::File', $tfile or croak "Unable to tie to $tfile";
+    my %lines_seen = map { $_ => 1 } @lines;
+    untie @lines or croak "Unable to untie from $tfile";
+    foreach my $j (keys %list_seen) {
+        foreach my $k (keys %lines_seen) {
+            $nonmatch++ unless $lines_seen{$j};
+        }
+    };
+    is( $nonmatch, 0, "All distros printed to file" );
+
+    eval {
+        $self->say_list( [] );
+    };
+    like($@, qr/Argument must be hashref/,
+        "Optional 'say_list()' argument must be a hashref" );
+
+    eval {
+        $self->say_list( { nofile => 'nothing' } );
+    };
+    like($@, qr/Need 'file' element in hashref/,
+        "'say_list()' requires 'file' element in hashref" );
 }
 
 $self = CPAN::Mini::Visit::Simple->new({});
@@ -63,7 +93,7 @@ like($@, qr/Directory $phony_minicpan not found/,
     "Got expected error message for bad 'start_dir' value" );
 
 {
-    $tdir = tempdir();
+    $tdir = tempdir( CLEANUP => 1 );
     ok( -d $tdir, "tempdir directory created for testing" );
     $id_dir = File::Spec->catdir($tdir, qw/authors id/);
     make_path($id_dir, { mode => 0711 });
@@ -85,7 +115,7 @@ like($@, qr/Directory $phony_minicpan not found/,
 }
 
 {
-    $tdir = tempdir();
+    $tdir = tempdir( CLEANUP => 1 );
     ok( -d $tdir, "tempdir directory created for testing" );
     $id_dir = File::Spec->catdir($tdir, qw/authors id/);
     make_path($id_dir, { mode => 0711 });
