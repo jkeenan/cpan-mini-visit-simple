@@ -12,4 +12,5 @@ t/002_identify_distros.t
 t/003_dedupe_superseded.t
 t/004_normalize_version_number.t
 t/005_get_list.t
+t/006_refresh_list.t
 Todo

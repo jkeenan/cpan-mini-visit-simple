@@ -12,8 +12,10 @@ use File::Find;
 use File::Spec;
 use Scalar::Util qw/ reftype /;
 use CPAN::Mini::Visit::Simple::Auxiliary qw(
+    $ARCHIVE_REGEX
     dedupe_superseded
 );
+use Data::Dumper;$Data::Dumper::Indent=1;
 
 sub new {
     my ($class, $args) = @_;
@@ -39,17 +41,27 @@ sub new {
     return $self;
 }
 
+sub identify_distros_from_prepared_list {
+    my ($self, $args) = @_;
+    croak "Bad argument 'start_dir' provided to identify_distros_from_prepared_list()"
+        if exists $args->{start_dir};
+    croak "Bad argument 'pattern' provided to identify_distros_from_prepared_list()"
+        if exists $args->{pattern};
+    croak "identify_distros_from_prepared_list() needs 'list' element"
+        unless exists $args->{list}; 
+    croak "Value of 'list' must be array reference"
+        unless reftype($args->{list}) eq 'ARRAY';
+    croak "Value of 'list' must be non-empty"
+        unless scalar(@{$args->{list}});
+    $self->{list} = dedupe_superseded( $args->{list} );
+    return 1;
+}
+
 sub identify_distros {
     my ($self, $args) = @_;
 
-    if ( exists $args->{list} ) {
-        croak "Value of 'list' must be array reference"
-            unless reftype($args->{list}) eq 'ARRAY';
-        croak "Value of 'list' must be non-empty"
-            unless scalar(@{$args->{list}});
-        $self->{list} = dedupe_superseded( $args->{list} );
-        return 1;
-    }
+    croak "Bad argument 'list' provided to identify_distros()"
+        if exists $args->{list};
 
     if ( defined $args->{start_dir} ) {
         croak "Directory $args->{start_dir} not found"
@@ -67,7 +79,13 @@ sub identify_distros {
             unless (reftype($args->{pattern}) eq 'SCALAR');
     }
 
-    my $archive_re = qr{\.(?:tar\.(?:bz2|gz|Z)|t(?:gz|bz)|zip\.gz)$}i;
+    my $found_ref = $self->_search_from_start_dir( $args );
+    $self->{list} = dedupe_superseded( $found_ref );
+    return 1;
+}
+
+sub _search_from_start_dir {
+    my ($self, $args) = @_;
     my @found = ();
     find(
         {
@@ -75,7 +93,7 @@ sub identify_distros {
             no_chdir => 1,
             preprocess => sub { my @files = sort @_; return @files },
             wanted => sub {
-                return unless /$archive_re/;
+                return unless /$ARCHIVE_REGEX/;
                 if ( defined $args->{pattern} ) {
                     return unless $_ =~ m/$args->{pattern}/;
                 }
@@ -84,8 +102,7 @@ sub identify_distros {
         },
         $self->{start_dir},
     );
-    $self->{list} = dedupe_superseded( \@found );
-    return 1;
+    return \@found;
 }
 
 sub say_list {
@@ -116,5 +133,22 @@ sub get_list_ref {
     return $self->{list};
 }
 
+#    $refreshed_list_ref = $self->refresh_list();
+#    $self->identify_distros( { list => $refreshed_list_ref } );
+
+sub refresh_list {
+    my ($self) = @_;
+    # return undef if called no list previously created
+    return unless defined $self->{list};
+    # store old list for future recall
+    $self->{old_list} = $self->{list};
+    # we'll need to get list of all distros from presumably updated minicpan
+    # and store in hash.
+    # we'll then need to iterate over list and replace values for any distros
+    # that have upped their version numbers
+    my @refreshed_list;
+
+    return \@refreshed_list;
+}
 
 1;

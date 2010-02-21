@@ -4,6 +4,7 @@ use strict;
 use warnings;
 our @ISA       = qw( Exporter );
 our @EXPORT_OK = qw(
+    $ARCHIVE_REGEX
     dedupe_superseded
     normalize_version_number
 );
@@ -11,14 +12,20 @@ use File::Basename;
 use File::Spec;
 use Scalar::Util qw( looks_like_number );
 
+our $ARCHIVE_REGEX = qr{\.(
+    ?:tar\.(?:bz2|gz|Z) |
+    t(?:gz|bz)          |
+    zip                 |
+    gz
+)$}ix;
+
 sub dedupe_superseded {
     my $listref = shift;
     my (%version_seen, @newlist);
     foreach my $distro (@$listref) {
         my $dir   = dirname($distro);
         my $base  = basename($distro);
-        my $archive_re = qr{\.(?:tar\.(?:bz2|gz|Z)|t(?:gz|bz)|zip\.gz)$}i;
-        if ($base =~ m/^(.*)-([\d\.]+)(?:$archive_re)/) {
+        if ($base =~ m/^(.*)-([\d\.]+)(?:$ARCHIVE_REGEX)/) {
             my ($stem, $version) = ($1,$2);
             my $k = File::Spec->catfile($dir, $stem);
             if ( not $version_seen{$k}{version} ) {

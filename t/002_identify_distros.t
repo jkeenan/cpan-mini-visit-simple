@@ -2,6 +2,7 @@
 
 # t/002_identify_distros.t
 
+use 5.010;
 use CPAN::Mini::Visit::Simple;
 use Carp;
 use File::Path qw( make_path );
@@ -9,7 +10,7 @@ use File::Spec;
 use File::Temp qw( tempfile tempdir );
 use IO::CaptureOutput qw( capture );
 use Tie::File;
-use Test::More tests => 26;
+use Test::More qw(no_plan); # tests => 26;
 
 my ( $self, $rv, @list, $phony_minicpan, $tdir, $id_dir );
 
@@ -17,7 +18,7 @@ $self = CPAN::Mini::Visit::Simple->new({});
 isa_ok ($self, 'CPAN::Mini::Visit::Simple');
 
 eval {
-    $self->identify_distros({
+    $self->identify_distros_from_prepared_list({
         list => {},
     });
 };
@@ -25,7 +26,7 @@ like($@, qr/Value of 'list' must be array reference/,
     "Got expected error message for bad 'list' value -- must be array ref" );
 
 eval {
-    $self->identify_distros({
+    $self->identify_distros_from_prepared_list({
         list => [],
     });
 };
@@ -39,8 +40,54 @@ like($@, qr/Value of 'list' must be non-empty/,
         /home/user/minicpan/authors/id/A/AA/AARDVARK/Gamma-Delta-0.02-tar.gz
         /home/user/minicpan/authors/id/A/AA/AARDVARK/Epsilon-Zeta-0.03-tar.gz
     );
-    ok( $self->identify_distros({ list => \@list, }),
-        "identify_distros() returned true value" );
+    eval {
+        $self->identify_distros_from_prepared_list({
+            list => \@list,
+            start_dir   => '/foo/bar',
+        });
+    };
+    like($@,
+        qr/Bad argument 'start_dir' provided to identify_distros_from_prepared_list()/,
+        "Got expected error message when calling identify_distros_from_prepared_list() with 'start_dir'" );
+
+    eval {
+        $self->identify_distros_from_prepared_list({
+            list => \@list,
+            pattern   => qr/foo\/bar/,
+        });
+    };
+    like($@,
+        qr/Bad argument 'pattern' provided to identify_distros_from_prepared_list()/,
+        "Got expected error message when calling identify_distros_from_prepared_list() with 'pattern'" );
+}
+
+{
+    $self = CPAN::Mini::Visit::Simple->new({});
+    @list = qw(
+        /home/user/minicpan/authors/id/A/AA/AARDVARK/Alpha-Beta-0.01-tar.gz
+        /home/user/minicpan/authors/id/A/AA/AARDVARK/Gamma-Delta-0.02-tar.gz
+        /home/user/minicpan/authors/id/A/AA/AARDVARK/Epsilon-Zeta-0.03-tar.gz
+    );
+    eval {
+        $self->identify_distros({
+            list => \@list,
+            start_dir   => '/foo/bar',
+        });
+    };
+    like($@,
+        qr/Bad argument 'list' provided to identify_distros()/,
+        "Got expected error message when calling identify_distros with 'list'" );
+}
+
+{
+    $self = CPAN::Mini::Visit::Simple->new({});
+    @list = qw(
+        /home/user/minicpan/authors/id/A/AA/AARDVARK/Alpha-Beta-0.01-tar.gz
+        /home/user/minicpan/authors/id/A/AA/AARDVARK/Gamma-Delta-0.02-tar.gz
+        /home/user/minicpan/authors/id/A/AA/AARDVARK/Epsilon-Zeta-0.03-tar.gz
+    );
+    ok( $self->identify_distros_from_prepared_list({ list => \@list, }),
+        "identify_distros_from_prepared_list() returned true value" );
 
     my ($stdout, $stderr);
     capture(

@@ -221,6 +221,42 @@ elements in the list underneath the reference returned cannot be guaranteed.
 
 =back
 
+=head2 C<refresh_list()>
+
+=over 4
+
+=item * Purpose
+
+Takes a previously created list of distributions and replaces elements with
+the most recent versions of those distributions as needed.
+
+Suppose that you have a list of distributions, created originally from your
+minicpan repository, that you are using to test some new CPAN-wide
+functionality.  Suppose further that you update your minicpan repository with
+the F<minicpan> utility while still working on your project.  You will
+probably want to make sure that you are I<testing against HEAD>, so to speak.
+
+C<refresh_list()> will replace any elements in your list if updated versions
+thereof have appeared in your minicpan.  It will also delete any elements if
+their corresponding distributions have been removed entirely from CPAN and
+hence from your minicpan.
+
+=item * Arguments
+
+    $refreshed_list_ref = $self->refresh_list();
+
+    $self->identify_distros( { list => $refreshed_list_ref } );
+
+=item * Return Value
+
+Returns an reference to an array holding the refreshed list.  This arrayref is
+suitable for use as the value of the C<list> element in the hashref passed to
+the next call of C<identify_distros()>.
+
+=back
+
+=cut
+
 =head1 BUGS
 
 Report bugs at

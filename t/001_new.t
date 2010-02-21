@@ -2,11 +2,13 @@
 
 # t/001_new.t
 
+use 5.010;
 use Carp;
 use File::Path qw( make_path );
 use File::Spec;
 use File::Temp qw( tempdir );
-use Test::More tests =>  5;
+use Test::More qw(no_plan); # tests =>  5;
+use Data::Dumper;$Data::Dumper::Indent=1;
 
 BEGIN { use_ok( 'CPAN::Mini::Visit::Simple' ); }
 
@@ -39,3 +41,31 @@ like($@, qr/Directory $phony_minicpan not found/,
         "Got expected error message for malformed minicpan repository" );
 }
 
+{
+    $tdir = tempdir();
+    $id_dir = File::Spec->catdir($tdir, qw/authors id/);
+    make_path($id_dir, { mode => 0711 });
+    ok( -d $id_dir, "'authors/id' directory created for testing" );
+    $author_dir = File::Spec->catdir($id_dir, qw( A AA AARDVARK ) );
+    make_path($author_dir, { mode => 0711 });
+    ok( -d $author_dir, "'author's directory created for testing" );
+
+    my @source_list = qw(
+        Alpha-Beta-0.01-tar.gz
+        Gamma-Delta-0.02-tar.gz
+        Epsilon-Zeta-0.03-tar.gz
+    );
+    foreach my $distro (@source_list) {
+        my $fulldistro = File::Spec->catfile($author_dir, $distro);
+        open my $FH, '>', $fulldistro
+            or croak "Unable to open handle to $distro for writing";
+        say $FH q{};
+        close $FH or croak "Unable to close handle to $distro after writing";
+        ok( ( -f $fulldistro ), "$fulldistro created" );
+    }
+
+    $self = CPAN::Mini::Visit::Simple->new({
+        minicpan => $tdir,
+    });
+    isa_ok ($self, 'CPAN::Mini::Visit::Simple');
+}

@@ -2,6 +2,7 @@
 
 # t/003_dedupe_superseded.t
 
+use 5.010;
 use CPAN::Mini::Visit::Simple::Auxiliary qw(
     dedupe_superseded
 );

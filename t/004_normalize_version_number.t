@@ -2,6 +2,7 @@
 
 # t/004_normalize_version_number.t
 
+use 5.010;
 use CPAN::Mini::Visit::Simple::Auxiliary qw(
     normalize_version_number
 );
