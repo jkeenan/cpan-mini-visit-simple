@@ -1,5 +1,6 @@
 TODO list for Perl module CPAN::Mini::Visit::Simple
 
-Almost everything!  Constructor is incomplete; no other methods yet written.
+1.  Testing:  Write tests for a few uncovered statements and branches in the
+two .pm files.  Explicit tests for get_lookup_table().
 
-
+2.  Development:  Write visit method.

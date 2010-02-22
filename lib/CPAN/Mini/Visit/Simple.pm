@@ -15,6 +15,7 @@ use Scalar::Util qw/ reftype /;
 use CPAN::Mini::Visit::Simple::Auxiliary qw(
     $ARCHIVE_REGEX
     dedupe_superseded
+    get_lookup_table
     normalize_version_number
 );
 #use Data::Dumper;$Data::Dumper::Indent=1;
@@ -153,46 +154,23 @@ sub refresh_list {
     # the distribution name and the value is the version.
     # We will make a similar hash from the derived list.
 
-    my %primary = _get_lookup_table( $self->get_list() );
-    my %derived = _get_lookup_table( @{ $args->{derived_list} } );
+    my $primary = get_lookup_table( $self->get_list_ref() );
+    my $derived = get_lookup_table( $args->{derived_list} );
 
-    foreach my $stem ( keys %derived ) {
-        if ( not exists $primary{$stem} ) {
-            delete $derived{$stem};
+    foreach my $stem ( keys %{$derived} ) {
+        if ( not exists $primary->{$stem} ) {
+            delete $derived->{$stem};
         }
-        elsif ( $primary{$stem}{version} > $derived{$stem}{version} ) {
-            $derived{$stem}{version} = $primary{$stem}{version};
-            $derived{$stem}{distro} = $primary{$stem}{distro};
+        elsif ( $primary->{$stem}{version} > $derived->{$stem}{version} ) {
+            $derived->{$stem}{version} = $primary->{$stem}{version};
+            $derived->{$stem}{distro} = $primary->{$stem}{distro};
         }
         else {
             # nothing to do
         }
     }
 
-    return [ sort map { $derived{$_}{distro} } keys %derived ];
-}
-
-sub _get_lookup_table {
-    my @distributions = @_;
-    my %lookup_table = ();
-    foreach my $distro ( @distributions ) {
-        my $dir   = dirname($distro);
-        my $base  = basename($distro);
-        if ($base =~ m/^(.*)-([\d\.]+)(?:$ARCHIVE_REGEX)/) {
-            my ($stem, $version) = ($1,$2);
-            my $k = File::Spec->catfile($dir, $stem);
-            $lookup_table{$k} = {
-                distro => $distro,
-                version => normalize_version_number($version),
-            };
-        }
-        else {
-            # Since we don't have any authoritative way to compare version
-            # numbers that can't be normalized, we will (for now) pass over
-            # distributions with non-standard version numbers.
-        }
-    }
-    return %lookup_table;
+    return [ sort map { $derived->{$_}{distro} } keys %{$derived} ];
 }
 
 1;

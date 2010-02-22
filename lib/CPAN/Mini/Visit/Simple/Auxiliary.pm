@@ -6,6 +6,7 @@ our @ISA       = qw( Exporter );
 our @EXPORT_OK = qw(
     $ARCHIVE_REGEX
     dedupe_superseded
+    get_lookup_table
     normalize_version_number
 );
 use File::Basename;
@@ -56,6 +57,29 @@ sub dedupe_superseded {
     return [ sort @newlist ];
 }
 
+sub get_lookup_table {
+    my $distributions_ref = shift;
+    my %lookup_table = ();
+    foreach my $distro ( @{$distributions_ref} ) {
+        my $dir   = dirname($distro);
+        my $base  = basename($distro);
+        if ($base =~ m/^(.*)-([\d\.]+)(?:$ARCHIVE_REGEX)/) {
+            my ($stem, $version) = ($1,$2);
+            my $k = File::Spec->catfile($dir, $stem);
+            $lookup_table{$k} = {
+                distro => $distro,
+                version => normalize_version_number($version),
+            };
+        }
+        else {
+            # Since we don't have any authoritative way to compare version
+            # numbers that can't be normalized, we will (for now) pass over
+            # distributions with non-standard version numbers.
+        }
+    }
+    return \%lookup_table;
+}
+
 sub normalize_version_number {
     my $v = shift;
     my @captures = split /\./, $v;
@@ -86,7 +110,10 @@ CPAN::Mini::Visit::Simple::Auxiliary - Helper functions for CPAN::Mini::Visit::S
 =head1 SYNOPSIS
 
     use CPAN::Mini::Visit::Simple::Auxiliary qw(
+        $ARCHIVE_REGEX
         dedupe_superseded
+        get_lookup_table
+        normalize_version_number
     );
 
 =head1 DESCRIPTION
@@ -150,6 +177,34 @@ to be duplicated.
 Reference to an array holding a deduplicated list.
 
 =back
+
+
+=head2 C<get_lookup_table()>
+
+=over 4
+
+=item * Purpose
+
+Convert a list of distributions into a hash keyed on the stem of the
+distribution name and having values which are corresponding version numbers.
+
+=item * Arguments
+
+    my $primary = get_lookup_table( $self->get_list_ref() );
+
+Array reference.
+
+=item * Return Value
+
+Reference to hash holding lookup table.  Elements in that hash will resemble:
+
+    '/home/user/minicpan/author/id/Alpha-Beta' => {
+        version     => '0.01',
+        distro      => '/home/user/minicpan/author/id/Alpha-Beta.tar.gz',
+    },
+
+=back
+
 
 =head2 C<normalize_version_number()>
 
