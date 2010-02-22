@@ -8,14 +8,16 @@ $VERSION = eval $VERSION; ## no critic
 
 use Carp;
 use CPAN::Mini ();
+use File::Basename qw/ dirname basename /;
 use File::Find;
 use File::Spec;
 use Scalar::Util qw/ reftype /;
 use CPAN::Mini::Visit::Simple::Auxiliary qw(
     $ARCHIVE_REGEX
     dedupe_superseded
+    normalize_version_number
 );
-use Data::Dumper;$Data::Dumper::Indent=1;
+#use Data::Dumper;$Data::Dumper::Indent=1;
 
 sub new {
     my ($class, $args) = @_;
@@ -52,7 +54,7 @@ sub identify_distros {
             unless (-d $args->{start_dir} );
         croak "Directory $args->{start_dir} must be subdirectory of $self->{id_dir}"
             unless ( $args->{start_dir} =~ m/$self->{id_dir}/ );
-        $self->{start_dir} = $args->{start_dir};;
+        $self->{start_dir} = $args->{start_dir};
     }
     else {
         $self->{start_dir} = $self->{minicpan};
@@ -133,22 +135,76 @@ sub get_list_ref {
     return $self->{list};
 }
 
-#    $refreshed_list_ref = $self->refresh_list();
-#    $self->identify_distros( { list => $refreshed_list_ref } );
-
 sub refresh_list {
-    my ($self) = @_;
-    # return undef if called no list previously created
-    return unless defined $self->{list};
-    # store old list for future recall
-    $self->{old_list} = $self->{list};
-    # we'll need to get list of all distros from presumably updated minicpan
-    # and store in hash.
-    # we'll then need to iterate over list and replace values for any distros
-    # that have upped their version numbers
-    my @refreshed_list;
+    my ($self, $args) = @_;
+    croak "Need 'derived_list' whose value is list of distributions needing refreshment"
+        unless exists $args->{derived_list};
+    croak "Value of 'derived_list' must be array reference"
+        unless reftype( $args->{derived_list} ) eq 'ARRAY';
 
-    return \@refreshed_list;
+    # Call identify_distros() with all arguments except 'derived_list',
+    # i.e., with 'start_dir' and/or 'pattern'.
+    my %reduced_args = map { $_ => 1 } @{ $args->{derived_list} };
+    delete $reduced_args{derived_list};
+    my $rv = $self->identify_distros( \%reduced_args );
+
+    # So now we have an updated primary list ($self->{list}).
+    # We will need to make a hash out of that where they key is the stem of
+    # the distribution name and the value is the version.
+    # We will make a similar hash from the derived list.
+
+    my (%primary, %derived);
+
+    foreach my $distro ( $self->get_list() ) {
+        my $dir   = dirname($distro);
+        my $base  = basename($distro);
+        if ($base =~ m/^(.*)-([\d\.]+)(?:$ARCHIVE_REGEX)/) {
+            my ($stem, $version) = ($1,$2);
+            my $k = File::Spec->catfile($dir, $stem);
+            $primary{$k} = {
+                distro => $distro,
+                version => normalize_version_number($version),
+            };
+        }
+        else {
+            # Since we don't have any authoritative way to compare version
+            # numbers that can't be normalized, we will (for now) pass over
+            # distributions with non-standard version numbers.
+        }
+    }
+
+    foreach my $distro ( @{ $args->{derived_list} } ) {
+        my $dir   = dirname($distro);
+        my $base  = basename($distro);
+        if ($base =~ m/^(.*)-([\d\.]+)(?:$ARCHIVE_REGEX)/) {
+            my ($stem, $version) = ($1,$2);
+            my $k = File::Spec->catfile($dir, $stem);
+            $derived{$k} = {
+                distro => $distro,
+                version => normalize_version_number($version),
+            };
+        }
+        else {
+            # Since we don't have any authoritative way to compare version
+            # numbers that can't be normalized, we will (for now) pass over
+            # distributions with non-standard version numbers.
+        }
+    }
+
+    foreach my $stem ( keys %derived ) {
+        if ( not exists $primary{$stem} ) {
+            delete $derived{$stem};
+        }
+        elsif ( $primary{$stem}{version} > $derived{$stem}{version} ) {
+            $derived{$stem}{version} = $primary{$stem}{version};
+            $derived{$stem}{distro} = $primary{$stem}{distro};
+        }
+        else {
+            # nothing to do
+        }
+    }
+
+    return [ sort map { $derived{$_}{distro} } keys %derived ];
 }
 
 1;

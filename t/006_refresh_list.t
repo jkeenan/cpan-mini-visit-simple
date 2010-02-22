@@ -12,9 +12,10 @@ use Test::More qw(no_plan); # tests => 26;
 #use Data::Dumper;$Data::Dumper::Indent=1;
 
 my ( $self, @list, $tdir, $id_dir, $author_dir );
-my ( @source_list, $output_list_ref, $refreshed_list_ref );
+my ( @source_list, $old_primary_list_ref, $refreshed_list_ref );
 
 {
+    # Prepare the test by creating a minicpan in a temporary directory.
     $tdir = tempdir();
     $id_dir = File::Spec->catdir($tdir, qw/authors id/);
     make_path($id_dir, { mode => 0711 });
@@ -24,9 +25,9 @@ my ( @source_list, $output_list_ref, $refreshed_list_ref );
     ok( -d $author_dir, "'author's directory created for testing" );
 
     @source_list = qw(
-        Alpha-Beta-0.01-tar.gz
-        Gamma-Delta-0.02-tar.gz
-        Epsilon-Zeta-0.03-tar.gz
+        Alpha-Beta-0.01.tar.gz
+        Gamma-Delta-0.02.tar.gz
+        Epsilon-Zeta-0.03.tar.gz
     );
     foreach my $distro (@source_list) {
         my $fulldistro = File::Spec->catfile($author_dir, $distro);
@@ -37,6 +38,7 @@ my ( @source_list, $output_list_ref, $refreshed_list_ref );
         ok( ( -f $fulldistro ), "$fulldistro created" );
     }
 
+    # Create object and get primary list
     $self = CPAN::Mini::Visit::Simple->new({
         minicpan => $tdir,
     });
@@ -45,13 +47,14 @@ my ( @source_list, $output_list_ref, $refreshed_list_ref );
     ok( $self->identify_distros(),
         "identify_distros() returned true value" );
 
-    $output_list_ref = $self->get_list_ref();
+    $old_primary_list_ref = $self->get_list_ref();
 
-    my $remove = q{Epsilon-Zeta-0.03-tar.gz};
+    # Bump up the version number of one distro in the minicpan
+    my $remove = q{Epsilon-Zeta-0.03.tar.gz};
     my $removed_file = File::Spec->catfile($author_dir, $remove);
     is( unlink($removed_file), 1, "$removed_file deleted" );
 
-    my $update = q{Epsilon-Zeta-0.04-tar.gz};
+    my $update = q{Epsilon-Zeta-0.04.tar.gz};
     my $updated_file = File::Spec->catfile($author_dir, $update);
     open my $FH, '>', $updated_file
         or croak "Unable to open handle to $update for writing";
@@ -59,18 +62,34 @@ my ( @source_list, $output_list_ref, $refreshed_list_ref );
     close $FH or croak "Unable to close handle to $update after writing";
     ok( ( -f $updated_file ), "$updated_file created" );
 
-    # We have now changed what is in our minicpan repository
-    # but we have not yet changed our list of selected distros.
-    # We need to refresh that list.  Then we will compare it to @output_list.
+    # We have now changed what is in our minicpan repository.
+    # We need to refresh what is in $old_primary_list_ref.
+    # (Since we did not use 'start_dir' or 'pattern' to create the old primary
+    # list, we will not provide those arguments to refresh_list().
 
-    $refreshed_list_ref = $self->refresh_list();
+    $refreshed_list_ref = $self->refresh_list( {
+        derived_list    => $old_primary_list_ref,
+    } );
 
-    TODO: {
-        local $TODO = "Code not written";
+    my $expected_list_ref = {
+        map { my $path = qq|$author_dir/$_|; $path => 1 } qw(
+            Alpha-Beta-0.01.tar.gz
+            Gamma-Delta-0.02.tar.gz
+            Epsilon-Zeta-0.04.tar.gz
+        )
+    };
+    is_deeply(
+        { map { $_ => 1 } @{$refreshed_list_ref} },
+        $expected_list_ref,
+        "Got expected refreshed list"
+    );
 
-    eval { $self->identify_distros_from_derived_list( { list => $refreshed_list_ref } ) };
-    is($@, q{}, "No error code found");
+#    TODO: {
+#        local $TODO = "Code not written";
+#
+#    eval { $self->identify_distros_from_derived_list( { list => $refreshed_list_ref } ) };
+#    is($@, q{}, "No error code found");
 #    ok( $self->identify_distros_from_derived_list( { list => $refreshed_list_ref } ),
 #        "identify_distros_from_derived_list() returned true value" );
-    }
+#    }
 }

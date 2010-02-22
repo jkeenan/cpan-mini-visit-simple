@@ -288,9 +288,13 @@ hence from your minicpan.
 
 =item * Arguments
 
-    $refreshed_list_ref = $self->refresh_list();
-
-    $self->identify_distros( { list => $refreshed_list_ref } );
+    $refreshed_list_ref = $self->refresh_list( {
+       derived_list    => \@derived_list,
+       # Next two are optional, but should be used if they were
+       # used to calculate the primary list.
+       start_dir   => "$minicpan_id_dir/D/DR/DROLSKY",
+       pattern   => qr/Moose/,
+    } );
 
 =item * Return Value
 
