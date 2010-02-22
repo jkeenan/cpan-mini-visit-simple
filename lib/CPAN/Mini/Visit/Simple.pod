@@ -5,13 +5,55 @@ CPAN::Mini::Visit::Simple - Lightweight traversal of a minicpan repository
 =head1 SYNOPSIS
 
     use CPAN::Mini::Visit::Simple;
-    $self = CPAN::Mini::Visit::Simple->new({});
+    $self = CPAN::Mini::Visit::Simple->new();
     $self->identify_distros();
 
 =head1 DESCRIPTION
 
 This Perl extension is a variant on David Golden's App-CPAN-Mini-Visit.  It
-can be used in the following circumstances:
+can be used to:
+
+=over 4
+
+=item *
+
+Calculate a subset of the set of distributions in a minicpan repository.
+
+=item *
+
+Refresh such a subset when new versions of the distributions which are its
+elements have appeared in the minicpan repository.
+
+=item *
+
+Perform an action on each element of the subset.
+
+=back
+
+=head1 GLOSSARY
+
+=over 4
+
+=item * Primary List
+
+A set of distributions calculated by this module's methods.
+
+=item * Derived List
+
+A humanly edited version of a primary list; prepared via deletions from -- but
+not additions to -- a primary list.
+
+=item * Refreshed List
+
+A prepared list whose elements have been updated to reflect the arrival of
+updated versions of those distributions in the minicpan repository.
+
+=item * Visit
+
+An operation performed on each element of any of the three types of list
+above.
+
+=back
 
 =head1 SUBROUTINES
 
@@ -27,15 +69,19 @@ directories are present.
 
 =item * Arguments
 
-    $self = CPAN::Mini::Visit::Simple->new({
-        minicpan => $phony_minicpan,    # optional
-    });
+    $self = CPAN::Mini::Visit::Simple->new();
 
-Optional single hash reference.  That hash should have a C<minicpan> element
-whose value is the absolute path to your minicpan repository.
+or
+
+    $self = CPAN::Mini::Visit::Simple->new({
+        minicpan => /path/to/a/minicpan,
+    });
 
 If called with no arguments, the constructor will use the value of the
 C<local> key-value pair in your F<.minicpanrc> file.
+
+May also be called with a single hash reference whose C<minicpan> element's
+value is the absolute path to a minicpan repository.
 
 =item * Return Value
 
@@ -49,8 +95,9 @@ CPAN::Mini::Visit::Simple object.
 
 =item * Purpose
 
-Prepare the list of distributions in the minicpan repository which will be
-visited.
+By traversing a minicpan repository and examining the names of distributions,
+prepare a list of distributions needing a visit.  We will call this list,
+which is produced without human editing, a B<primary list>.
 
 =item * Arguments
 
@@ -62,14 +109,12 @@ May be called in any of the following two mutually exclusive ways:
 
     $self->identify_distros();
 
-Will add all distributions found in the minicpan repository to the list of
-distributions to be visited.
+This will add all distributions found in the minicpan repository to the primary
+list.
 
 =item 2 Single hash reference
 
-You may provide a hash reference with B<one> of several elements.  These
-elements are mutually exclusive and are listed in descending order of
-priority.
+You may provide a hash reference with one or more of several elements.
 
 =over 4
 

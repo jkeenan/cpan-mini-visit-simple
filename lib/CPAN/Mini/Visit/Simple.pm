@@ -41,13 +41,13 @@ sub new {
     return $self;
 }
 
-sub identify_distros_from_prepared_list {
+sub identify_distros_from_derived_list {
     my ($self, $args) = @_;
-    croak "Bad argument 'start_dir' provided to identify_distros_from_prepared_list()"
+    croak "Bad argument 'start_dir' provided to identify_distros_from_derived_list()"
         if exists $args->{start_dir};
-    croak "Bad argument 'pattern' provided to identify_distros_from_prepared_list()"
+    croak "Bad argument 'pattern' provided to identify_distros_from_derived_list()"
         if exists $args->{pattern};
-    croak "identify_distros_from_prepared_list() needs 'list' element"
+    croak "identify_distros_from_derived_list() needs 'list' element"
         unless exists $args->{list}; 
     croak "Value of 'list' must be array reference"
         unless reftype($args->{list}) eq 'ARRAY';

@@ -16,7 +16,7 @@ isa_ok ($self, 'CPAN::Mini::Visit::Simple');
     /home/user/minicpan/authors/id/A/AA/AARDVARK/Gamma-Delta-0.02-tar.gz
     /home/user/minicpan/authors/id/A/AA/AARDVARK/Epsilon-Zeta-0.03-tar.gz
 );
-$self->identify_distros_from_prepared_list( { list => \@input_list } );
+$self->identify_distros_from_derived_list( { list => \@input_list } );
 
 @output_list = $self->get_list();
 is_deeply(

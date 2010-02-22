@@ -68,9 +68,9 @@ my ( @source_list, $output_list_ref, $refreshed_list_ref );
     TODO: {
         local $TODO = "Code not written";
 
-    eval { $self->identify_distros_from_prepared_list( { list => $refreshed_list_ref } ) };
+    eval { $self->identify_distros_from_derived_list( { list => $refreshed_list_ref } ) };
     is($@, q{}, "No error code found");
-#    ok( $self->identify_distros_from_prepared_list( { list => $refreshed_list_ref } ),
-#        "identify_distros_from_prepared_list() returned true value" );
+#    ok( $self->identify_distros_from_derived_list( { list => $refreshed_list_ref } ),
+#        "identify_distros_from_derived_list() returned true value" );
     }
 }

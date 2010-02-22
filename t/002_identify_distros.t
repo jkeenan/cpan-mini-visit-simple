@@ -18,7 +18,7 @@ $self = CPAN::Mini::Visit::Simple->new({});
 isa_ok ($self, 'CPAN::Mini::Visit::Simple');
 
 eval {
-    $self->identify_distros_from_prepared_list({
+    $self->identify_distros_from_derived_list({
         list => {},
     });
 };
@@ -26,7 +26,7 @@ like($@, qr/Value of 'list' must be array reference/,
     "Got expected error message for bad 'list' value -- must be array ref" );
 
 eval {
-    $self->identify_distros_from_prepared_list({
+    $self->identify_distros_from_derived_list({
         list => [],
     });
 };
@@ -41,24 +41,24 @@ like($@, qr/Value of 'list' must be non-empty/,
         /home/user/minicpan/authors/id/A/AA/AARDVARK/Epsilon-Zeta-0.03-tar.gz
     );
     eval {
-        $self->identify_distros_from_prepared_list({
+        $self->identify_distros_from_derived_list({
             list => \@list,
             start_dir   => '/foo/bar',
         });
     };
     like($@,
-        qr/Bad argument 'start_dir' provided to identify_distros_from_prepared_list()/,
-        "Got expected error message when calling identify_distros_from_prepared_list() with 'start_dir'" );
+        qr/Bad argument 'start_dir' provided to identify_distros_from_derived_list()/,
+        "Got expected error message when calling identify_distros_from_derived_list() with 'start_dir'" );
 
     eval {
-        $self->identify_distros_from_prepared_list({
+        $self->identify_distros_from_derived_list({
             list => \@list,
             pattern   => qr/foo\/bar/,
         });
     };
     like($@,
-        qr/Bad argument 'pattern' provided to identify_distros_from_prepared_list()/,
-        "Got expected error message when calling identify_distros_from_prepared_list() with 'pattern'" );
+        qr/Bad argument 'pattern' provided to identify_distros_from_derived_list()/,
+        "Got expected error message when calling identify_distros_from_derived_list() with 'pattern'" );
 }
 
 {
@@ -86,8 +86,8 @@ like($@, qr/Value of 'list' must be non-empty/,
         /home/user/minicpan/authors/id/A/AA/AARDVARK/Gamma-Delta-0.02-tar.gz
         /home/user/minicpan/authors/id/A/AA/AARDVARK/Epsilon-Zeta-0.03-tar.gz
     );
-    ok( $self->identify_distros_from_prepared_list({ list => \@list, }),
-        "identify_distros_from_prepared_list() returned true value" );
+    ok( $self->identify_distros_from_derived_list({ list => \@list, }),
+        "identify_distros_from_derived_list() returned true value" );
 
     my ($stdout, $stderr);
     capture(
