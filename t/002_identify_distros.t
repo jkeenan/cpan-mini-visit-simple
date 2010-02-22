@@ -10,12 +10,18 @@ use File::Spec;
 use File::Temp qw( tempfile tempdir );
 use IO::CaptureOutput qw( capture );
 use Tie::File;
-use Test::More qw(no_plan); # tests => 26;
+use Test::More tests => 30;
 
 my ( $self, $rv, @list, $phony_minicpan, $tdir, $id_dir );
 
 $self = CPAN::Mini::Visit::Simple->new({});
 isa_ok ($self, 'CPAN::Mini::Visit::Simple');
+
+eval {
+    $self->identify_distros_from_derived_list({});
+};
+like($@, qr/identify_distros_from_derived_list\(\) needs 'list' element/,
+    "Got expected error message for absent 'list' element in hashref" );
 
 eval {
     $self->identify_distros_from_derived_list({
