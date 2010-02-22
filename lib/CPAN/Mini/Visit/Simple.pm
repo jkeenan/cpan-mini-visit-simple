@@ -153,43 +153,8 @@ sub refresh_list {
     # the distribution name and the value is the version.
     # We will make a similar hash from the derived list.
 
-    my (%primary, %derived);
-
-    foreach my $distro ( $self->get_list() ) {
-        my $dir   = dirname($distro);
-        my $base  = basename($distro);
-        if ($base =~ m/^(.*)-([\d\.]+)(?:$ARCHIVE_REGEX)/) {
-            my ($stem, $version) = ($1,$2);
-            my $k = File::Spec->catfile($dir, $stem);
-            $primary{$k} = {
-                distro => $distro,
-                version => normalize_version_number($version),
-            };
-        }
-        else {
-            # Since we don't have any authoritative way to compare version
-            # numbers that can't be normalized, we will (for now) pass over
-            # distributions with non-standard version numbers.
-        }
-    }
-
-    foreach my $distro ( @{ $args->{derived_list} } ) {
-        my $dir   = dirname($distro);
-        my $base  = basename($distro);
-        if ($base =~ m/^(.*)-([\d\.]+)(?:$ARCHIVE_REGEX)/) {
-            my ($stem, $version) = ($1,$2);
-            my $k = File::Spec->catfile($dir, $stem);
-            $derived{$k} = {
-                distro => $distro,
-                version => normalize_version_number($version),
-            };
-        }
-        else {
-            # Since we don't have any authoritative way to compare version
-            # numbers that can't be normalized, we will (for now) pass over
-            # distributions with non-standard version numbers.
-        }
-    }
+    my %primary = _get_lookup_table( $self->get_list() );
+    my %derived = _get_lookup_table( @{ $args->{derived_list} } );
 
     foreach my $stem ( keys %derived ) {
         if ( not exists $primary{$stem} ) {
@@ -205,6 +170,29 @@ sub refresh_list {
     }
 
     return [ sort map { $derived{$_}{distro} } keys %derived ];
+}
+
+sub _get_lookup_table {
+    my @distributions = @_;
+    my %lookup_table = ();
+    foreach my $distro ( @distributions ) {
+        my $dir   = dirname($distro);
+        my $base  = basename($distro);
+        if ($base =~ m/^(.*)-([\d\.]+)(?:$ARCHIVE_REGEX)/) {
+            my ($stem, $version) = ($1,$2);
+            my $k = File::Spec->catfile($dir, $stem);
+            $lookup_table{$k} = {
+                distro => $distro,
+                version => normalize_version_number($version),
+            };
+        }
+        else {
+            # Since we don't have any authoritative way to compare version
+            # numbers that can't be normalized, we will (for now) pass over
+            # distributions with non-standard version numbers.
+        }
+    }
+    return %lookup_table;
 }
 
 1;
