@@ -8,9 +8,14 @@ our @EXPORT_OK = qw(
     dedupe_superseded
     get_lookup_table
     normalize_version_number
+    create_minicpan_for_testing
+    create_one_new_distro_version
 );
+use Carp;
 use File::Basename;
+use File::Path qw( make_path );
 use File::Spec;
+use File::Temp qw( tempdir );
 use Scalar::Util qw( looks_like_number );
 
 our $ARCHIVE_REGEX = qr{\.(
@@ -98,6 +103,52 @@ sub normalize_version_number {
     }
     $normalized =~ s/-//g;
     return $normalized;
+}
+
+sub create_minicpan_for_testing {
+    my ( $tdir, $id_dir, $author_dir );
+    my ( @source_list );
+    # Prepare the test by creating a minicpan in a temporary directory.
+    $tdir = tempdir();
+    $id_dir = File::Spec->catdir($tdir, qw/authors id/);
+    make_path($id_dir, { mode => 0711 });
+    Test::More::ok( -d $id_dir, "'authors/id' directory created for testing" );
+    $author_dir = File::Spec->catdir($id_dir, qw( A AA AARDVARK ) );
+    make_path($author_dir, { mode => 0711 });
+    Test::More::ok( -d $author_dir, "'author's directory created for testing" );
+
+    @source_list = qw(
+        Alpha-Beta-0.01.tar.gz
+        Gamma-Delta-0.02.tar.gz
+        Epsilon-Zeta-0.03.tar.gz
+    );
+    foreach my $distro (@source_list) {
+        my $fulldistro = File::Spec->catfile($author_dir, $distro);
+        create_file($fulldistro);
+        Test::More::ok( ( -f $fulldistro ), "$fulldistro created" );
+    }
+    return ($tdir, $author_dir);
+}
+
+sub create_one_new_distro_version {
+    my ($author_dir) = @_;
+    # Bump up the version number of one distro in the minicpan
+    my $remove = q{Epsilon-Zeta-0.03.tar.gz};
+    my $removed_file = File::Spec->catfile($author_dir, $remove);
+    Test::More::is( unlink($removed_file), 1, "$removed_file deleted" );
+
+    my $update = q{Epsilon-Zeta-0.04.tar.gz};
+    my $updated_file = File::Spec->catfile($author_dir, $update);
+    create_file($updated_file);
+    Test::More::ok( ( -f $updated_file ), "$updated_file created" );
+}
+
+sub create_file {
+    my $file = shift;
+    open my $FH, '>', $file
+        or croak "Unable to open handle to $file for writing";
+    say $FH q{};
+    close $FH or croak "Unable to close handle to $file after writing";
 }
 
 1;

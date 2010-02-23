@@ -18,7 +18,6 @@ use CPAN::Mini::Visit::Simple::Auxiliary qw(
     get_lookup_table
     normalize_version_number
 );
-#use Data::Dumper;$Data::Dumper::Indent=1;
 
 sub new {
     my ($class, $args) = @_;
