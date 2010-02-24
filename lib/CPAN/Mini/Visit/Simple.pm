@@ -173,4 +173,54 @@ sub refresh_list {
     return [ sort map { $derived->{$_}{distro} } keys %{$derived} ];
 }
 
+sub visit {
+    local $Archive::Extract::PREFER_BIN = 1;
+    local $Archive::Extract::WARN = 0;
+    my ($self) = @_;
+}
+
+#sub _visit {
+#  my ($archive, @cmd_line) = @_;
+#  
+#  my $tempd = tempd;
+#
+#  my $ae = Archive::Extract->new( archive => $archive );
+#
+#  my $olderr;
+#
+#  # stderr > /dev/null if quiet
+#  if ( ! $Archive::Extract::WARN ) {
+#    open $olderr, ">&STDERR";
+#    open STDERR, ">", File::Spec->devnull;
+#  }
+#
+#  my $extract_ok = $ae->extract;
+#
+#  # restore stderr if quiet
+#  if ( ! $Archive::Extract::WARN ) {
+#    open STDERR, ">&", $olderr;
+#    close $olderr;
+#  }
+#
+#  if ( ! $extract_ok ) {
+#    warn "Couldn't extract '$archive'\n" if $Archive::Extract::WARN;
+#    return;
+#  }
+#  
+#  # most distributions unpack a single directory that we must enter
+#  # but some behave poorly and unpack to the current directory
+#  my @children = dir()->children;
+#  if ( @children == 1 && -d $children[0] ) {
+#    chdir $children[0];
+#  }
+#  
+#  # execute command
+#  my $rc = system( @cmd_line );
+#  if ( $rc == -1 ) {
+#    warn "Error running '@cmd_line': $!\n";
+#  }
+#
+#  return;
+#}
+
 1;
