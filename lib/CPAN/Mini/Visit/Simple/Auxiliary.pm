@@ -10,6 +10,7 @@ our @EXPORT_OK = qw(
     normalize_version_number
     create_minicpan_for_testing
     create_one_new_distro_version
+    create_file
 );
 use Carp;
 use File::Basename;

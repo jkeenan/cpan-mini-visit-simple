@@ -7,8 +7,7 @@ use Carp;
 use File::Path qw( make_path );
 use File::Spec;
 use File::Temp qw( tempdir );
-use Test::More qw(no_plan); # tests =>  5;
-use Data::Dumper;$Data::Dumper::Indent=1;
+use Test::More tests => 11;
 
 BEGIN { use_ok( 'CPAN::Mini::Visit::Simple' ); }
 
