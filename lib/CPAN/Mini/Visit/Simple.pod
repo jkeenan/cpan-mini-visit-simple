@@ -304,6 +304,24 @@ the next call of C<identify_distros()>.
 
 =back
 
+=head2 C<visit()>
+
+=over 4
+
+=item * Purpose
+
+Executes an action on each distribution in the list.
+
+=item * Arguments
+
+=item * Return Value
+
+Returns true value upon success.
+
+=back
+
+=cut
+
 =cut
 
 =head1 BUGS

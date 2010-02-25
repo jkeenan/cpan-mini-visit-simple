@@ -7,17 +7,26 @@ use Carp;
 use File::Path qw( make_path );
 use File::Spec;
 use File::Temp qw( tempdir );
-use Test::More tests => 11;
+use Test::More tests => 13;
 
 BEGIN { use_ok( 'CPAN::Mini::Visit::Simple' ); }
 
 my ( $self, $phony_minicpan, $tdir, $id_dir );
+my ( $real_minicpan, $real_id_dir );
 
 $self = CPAN::Mini::Visit::Simple->new();
 isa_ok ($self, 'CPAN::Mini::Visit::Simple');
 
 $self = CPAN::Mini::Visit::Simple->new({});
 isa_ok ($self, 'CPAN::Mini::Visit::Simple');
+
+$real_minicpan = $self->get_minicpan;
+ok( ( -d $real_minicpan ),
+    "Top minicpan directory exists: $real_minicpan" );
+
+$real_id_dir = $self->get_id_dir;
+ok( ( -d $real_id_dir ),
+    "'authors/id/' directory exists: $real_id_dir" );
 
 $phony_minicpan = '/foo/bar';
 eval {

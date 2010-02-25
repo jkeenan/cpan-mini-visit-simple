@@ -6,11 +6,13 @@ use warnings;
 our $VERSION = '0.001';
 $VERSION = eval $VERSION; ## no critic
 
+use Archive::Extract;
 use Carp;
 use CPAN::Mini ();
 use File::Basename qw/ dirname basename /;
 use File::Find;
 use File::Spec;
+use File::Temp qw/ tempdir /;
 use Scalar::Util qw/ reftype /;
 use CPAN::Mini::Visit::Simple::Auxiliary qw(
     $ARCHIVE_REGEX
@@ -44,6 +46,15 @@ sub new {
     return $self;
 }
 
+sub get_minicpan {
+    my $self = shift;
+    return $self->{minicpan};
+}
+
+sub get_id_dir {
+    my $self = shift;
+    return $self->{id_dir};
+}
 sub identify_distros {
     my ($self, $args) = @_;
 
@@ -174,53 +185,65 @@ sub refresh_list {
 }
 
 sub visit {
+    my ($self, $args) = @_;
+    no warnings 'once';
     local $Archive::Extract::PREFER_BIN = 1;
-    local $Archive::Extract::WARN = 0;
-    my ($self) = @_;
+    use warnings 'once';
+    local $Archive::Extract::WARN = $args->{quiet} ? 0 : 1;
+    croak "Must have a list of distributions on which to take action"
+        unless defined $self->{list};
+    croak "'visit()' method requires 'action' subroutine reference"
+        unless (
+            ( defined ($args->{action}) )
+                and
+            ( defined reftype($args->{action}) )
+                and
+            ( reftype($args->{action}) eq 'CODE' )
+        );
+    my @action_args = ();
+    if ( defined $args->{action_args} ) {
+        croak "'action_args' must be array reference"
+            unless (
+                ( defined reftype($args->{action_args}) )
+                    and
+                ( reftype($args->{action_args}) eq 'ARRAY' )
+            );
+        @action_args = @{ $args->{action_args} };
+    }
+    foreach my $distro ( @{$self->{list}} ) {
+        my $ae = Archive::Extract->new( archive => $distro );
+        my $proper_distro = q{};
+        my $real_id_dir = $self->get_id_dir();
+        if ( $distro =~ m|$real_id_dir/(.*)| ) {
+            $proper_distro = $1;
+        }
+        my $olderr;
+        # stderr > /dev/null if quiet
+        if ( not  $Archive::Extract::WARN ) {
+            open $olderr, ">&STDERR";
+            open STDERR, ">", File::Spec->devnull;
+        }
+        my $tdir = tempdir( CLEANUP => 1 );
+        my $extract_ok = $ae->extract( to => $tdir );
+        # restore stderr if quiet
+        if ( not $Archive::Extract::WARN ) {
+            open STDERR, ">&", $olderr;
+            close $olderr;
+        }
+        if ( not $extract_ok ) {
+            carp "Couldn't extract '$distro'" if $Archive::Extract::WARN;
+            return;
+        }
+#        # most distributions unpack a single directory that we must enter
+#        # but some behave poorly and unpack to the current directory
+#        my @children = dir()->children;
+#        if ( ( @children == 1 ) and ( -d $children[0] ) ) {
+#          chdir $children[0];
+#        }
+        
+        &{$args->{action}}($proper_distro, @action_args);# execute command
+    }
+    return 1;
 }
-
-#sub _visit {
-#  my ($archive, @cmd_line) = @_;
-#  
-#  my $tempd = tempd;
-#
-#  my $ae = Archive::Extract->new( archive => $archive );
-#
-#  my $olderr;
-#
-#  # stderr > /dev/null if quiet
-#  if ( ! $Archive::Extract::WARN ) {
-#    open $olderr, ">&STDERR";
-#    open STDERR, ">", File::Spec->devnull;
-#  }
-#
-#  my $extract_ok = $ae->extract;
-#
-#  # restore stderr if quiet
-#  if ( ! $Archive::Extract::WARN ) {
-#    open STDERR, ">&", $olderr;
-#    close $olderr;
-#  }
-#
-#  if ( ! $extract_ok ) {
-#    warn "Couldn't extract '$archive'\n" if $Archive::Extract::WARN;
-#    return;
-#  }
-#  
-#  # most distributions unpack a single directory that we must enter
-#  # but some behave poorly and unpack to the current directory
-#  my @children = dir()->children;
-#  if ( @children == 1 && -d $children[0] ) {
-#    chdir $children[0];
-#  }
-#  
-#  # execute command
-#  my $rc = system( @cmd_line );
-#  if ( $rc == -1 ) {
-#    warn "Error running '@cmd_line': $!\n";
-#  }
-#
-#  return;
-#}
 
 1;

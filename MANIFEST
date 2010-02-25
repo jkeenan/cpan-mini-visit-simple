@@ -13,4 +13,6 @@ t/003_dedupe_superseded.t
 t/004_normalize_version_number.t
 t/005_get_list.t
 t/006_refresh_list.t
+t/007_get_lookup_table.t
+t/008_visit.t
 Todo
