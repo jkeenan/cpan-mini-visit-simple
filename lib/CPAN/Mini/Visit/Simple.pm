@@ -211,7 +211,6 @@ sub visit {
         @action_args = @{ $args->{action_args} };
     }
     foreach my $distro ( @{$self->{list}} ) {
-        my $ae = Archive::Extract->new( archive => $distro );
         my $proper_distro = q{};
         my $real_id_dir = $self->get_id_dir();
         if ( $distro =~ m|$real_id_dir/(.*)| ) {
@@ -224,14 +223,19 @@ sub visit {
             open STDERR, ">", File::Spec->devnull;
         }
         my $tdir = tempdir( CLEANUP => 1 );
+        my $ae = Archive::Extract->new( archive => $distro );
         my $extract_ok = $ae->extract( to => $tdir );
         # restore stderr if quiet
         if ( not $Archive::Extract::WARN ) {
             open STDERR, ">&", $olderr;
             close $olderr;
         }
-        if ( not $extract_ok ) {
-            carp "Couldn't extract '$distro'" if $Archive::Extract::WARN;
+        # Note:  It's not clear what would cause $extract_ok to be false.
+        # Things that are not valid archives appear to be caught by
+        # Archive::Extract::new() and rendered as fatal.  So following block
+        # is unlikely to be covered by test suite.
+        if ( ( not $extract_ok ) and  $Archive::Extract::WARN ) {
+            carp "Couldn't extract '$distro'";
             return;
         }
 #        # most distributions unpack a single directory that we must enter
