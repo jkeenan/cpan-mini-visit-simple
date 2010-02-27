@@ -13,6 +13,7 @@ use File::Basename qw/ dirname basename /;
 use File::Find;
 use File::Spec;
 use File::Temp qw/ tempdir /;
+use Path::Class;
 use Scalar::Util qw/ reftype /;
 use CPAN::Mini::Visit::Simple::Auxiliary qw(
     $ARCHIVE_REGEX
@@ -238,12 +239,13 @@ sub visit {
             carp "Couldn't extract '$distro'";
             return;
         }
-#        # most distributions unpack a single directory that we must enter
-#        # but some behave poorly and unpack to the current directory
-#        my @children = dir()->children;
-#        if ( ( @children == 1 ) and ( -d $children[0] ) ) {
-#          chdir $children[0];
-#        }
+        # most distributions unpack a single directory that we must enter
+        # but some behave poorly and unpack to the current directory
+        my $dir = Path::Class::Dir->new();
+        my @children = $dir->children;
+        if ( ( @children == 1 ) and ( -d $children[0] ) ) {
+          chdir $children[0];
+        }
         
         &{$args->{action}}($proper_distro, @action_args);# execute command
     }

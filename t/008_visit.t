@@ -5,12 +5,20 @@
 use 5.010;
 use CPAN::Mini::Visit::Simple;
 use Carp;
+use Cwd;
+use File::Basename;
+use File::Copy;
+use File::Path qw( make_path );
 use File::Spec;
+use File::Temp qw( tempdir );
 use IO::CaptureOutput qw( capture );
-use Test::More tests => 14;
+use Test::More qw(no_plan); # tests => 14;
 
 my ( $self, $rv );
-my ( $real_id_dir, $start_dir );
+my ( $real_id_dir, $start_dir, $cwd );
+my ( $id_dir );
+
+$cwd = cwd();
 
 $self = CPAN::Mini::Visit::Simple->new();
 isa_ok ($self, 'CPAN::Mini::Visit::Simple');
@@ -190,3 +198,27 @@ eval {
 like($@, qr/$pattern/,
     "Got expected error message:  'action_args' must be an array reference" );
 
+# Case 10: Badly formatted archive
+my $archive = qq|$cwd/t/data/mydistro.tar.gz|;
+ok( -f $archive, "Able to locate archive prior to testing" );
+my $tdir = tempdir(CLEANUP => 1);
+chdir $tdir or croak "Unable to change to tempdir";
+
+$id_dir = File::Spec->catdir($tdir, qw/authors id/);
+make_path($id_dir, { mode => 0711 });
+ok( -d $id_dir, "'authors/id' directory created for testing" );
+
+my $thisauthor_dir = File::Spec->catdir($id_dir, qw/ Z /);
+make_path($thisauthor_dir, { mode => 0711 });
+ok( -d $thisauthor_dir, "directory created for testing" );
+my $copy_archive = File::Spec->catfile($thisauthor_dir, basename($archive));
+copy $archive => $copy_archive or croak "Unable to copy archive";
+
+$self = CPAN::Mini::Visit::Simple->new({
+    minicpan => $tdir,
+});
+isa_ok ($self, 'CPAN::Mini::Visit::Simple');
+$rv = $self->identify_distros( {
+    start_dir   => $thisauthor_dir,
+} );
+ok( $rv, "'identify_distros() returned true value" );

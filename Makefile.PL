@@ -12,6 +12,7 @@ WriteMakefile(
                      'File::Find'   => 0,
                      'File::Spec'   => 0,
                      'File::Temp'   => 0.14,
+                     'Path::Class'  => 0.15,
                      'Scalar::Util' => 0,
                     },
     BUILD_REQUIRES  => {
