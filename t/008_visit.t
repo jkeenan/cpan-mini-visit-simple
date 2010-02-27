@@ -222,3 +222,15 @@ $rv = $self->identify_distros( {
     start_dir   => $thisauthor_dir,
 } );
 ok( $rv, "'identify_distros() returned true value" );
+$rv = $self->visit( {
+    action  => sub {
+        my $distro = shift @_;
+        if ( -f 'Makefile.PL' ) {
+            say "$distro has Makefile.PL";
+        }
+        if ( -f 'Build.PL' ) {
+            say "$distro has Build.PL";
+        }
+    },
+} );
+ok( $rv, "'visit()' returned true value" );
