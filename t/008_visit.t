@@ -12,7 +12,7 @@ use File::Path qw( make_path );
 use File::Spec;
 use File::Temp qw( tempdir );
 use IO::CaptureOutput qw( capture );
-use Test::More qw(no_plan); # tests => 14;
+use Test::More tests => 21;
 
 my ( $self, $rv );
 my ( $real_id_dir, $start_dir, $cwd );
@@ -222,15 +222,39 @@ $rv = $self->identify_distros( {
     start_dir   => $thisauthor_dir,
 } );
 ok( $rv, "'identify_distros() returned true value" );
-$rv = $self->visit( {
-    action  => sub {
-        my $distro = shift @_;
-        if ( -f 'Makefile.PL' ) {
-            say "$distro has Makefile.PL";
-        }
-        if ( -f 'Build.PL' ) {
-            say "$distro has Build.PL";
-        }
-    },
-} );
-ok( $rv, "'visit()' returned true value" );
+#$rv = $self->visit( {
+#    action  => sub {
+#        my $distro = shift @_;
+#        if ( -f 'Makefile.PL' ) {
+#            say "$distro has Makefile.PL";
+#        }
+#        if ( -f 'Build.PL' ) {
+#            say "$distro has Build.PL";
+#        }
+#    },
+#} );
+{
+    my ($stdout, $stderr);
+    capture(
+        sub {
+            $rv = $self->visit( {
+                action  => sub {
+                    my $distro = shift @_;
+                    if ( -f 'Makefile.PL' ) {
+                        say "$distro has Makefile.PL";
+                    }
+                    if ( -f 'Build.PL' ) {
+                        say "$distro has Build.PL";
+                    }
+                },
+            } );
+        },
+        \$stdout,
+        \$stderr,
+    );
+    ok( $rv, "'visit()' returned true value" );
+    like($stdout,
+        qr/\.tar\.gz has Makefile\.PL/s,
+        "Got expected STDOUT"
+    );
+}

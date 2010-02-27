@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 $VERSION = eval $VERSION; ## no critic
 
 use Archive::Extract;
@@ -224,8 +224,10 @@ sub visit {
             open STDERR, ">", File::Spec->devnull;
         }
         my $tdir = tempdir( CLEANUP => 1 );
+        chdir $tdir or croak "Unable to change to temporary directory";
         my $ae = Archive::Extract->new( archive => $distro );
-        my $extract_ok = $ae->extract( to => $tdir );
+        my $extract_ok;
+        eval { $extract_ok = $ae->extract( to => $tdir ); };
         # restore stderr if quiet
         if ( not $Archive::Extract::WARN ) {
             open STDERR, ">&", $olderr;
