@@ -9,6 +9,7 @@ $VERSION = eval $VERSION; ## no critic
 use Archive::Extract;
 use Carp;
 use CPAN::Mini ();
+use Cwd;
 use File::Basename qw/ dirname basename /;
 use File::Find;
 use File::Spec;
@@ -211,6 +212,7 @@ sub visit {
             );
         @action_args = @{ $args->{action_args} };
     }
+    my $here = cwd();
     foreach my $distro ( @{$self->{list}} ) {
         my $proper_distro = q{};
         my $real_id_dir = $self->get_id_dir();

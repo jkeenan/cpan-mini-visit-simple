@@ -1,4 +1,6 @@
 Changes
+examples/01-distros_with_xs.pl
+examples/02-build_distros_with_xs.pl
 lib/CPAN/Mini/Visit/Simple.pm
 lib/CPAN/Mini/Visit/Simple.pod
 lib/CPAN/Mini/Visit/Simple/Auxiliary.pm
