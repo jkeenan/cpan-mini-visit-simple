@@ -3,6 +3,13 @@ use ExtUtils::MakeMaker 6.56;
 # Require a version of EU:MM sufficient to have 'BUILD_REQUIRES'
 # so that we get the modern File::Path::make_path() in our tests.
 
+eval { require CPAN::Mini; };
+die "No CPAN::Mini" if "$@";
+my $config_file = CPAN::Mini->config_file({});
+unless ( defined $config_file and -e $config_file ) {
+    die "CPAN::Mini config file not located: $!";
+}
+
 WriteMakefile(
     NAME         => 'CPAN::Mini::Visit::Simple',
     VERSION_FROM => 'lib/CPAN/Mini/Visit/Simple.pm',

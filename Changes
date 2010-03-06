@@ -1,5 +1,8 @@
 Revision history for Perl module CPAN::Mini::Visit::Simple
 
+0.04 Fri Mar  5 22:12:25 EST 2010
+    - Test for presence of CPAN::Mini config file in Makefile.PL
+
 0.03 Fri Mar  5 18:48:27 EST 2010
     - 0.02 was uploaded to CPAN but failed automated testing;
       begin to fix
