@@ -1,7 +1,8 @@
 use 5.010;
-use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
+use ExtUtils::MakeMaker 6.56;
+# Require a version of EU:MM sufficient to have 'BUILD_REQUIRES'
+# so that we get the modern File::Path::make_path() in our tests.
+
 WriteMakefile(
     NAME         => 'CPAN::Mini::Visit::Simple',
     VERSION_FROM => 'lib/CPAN/Mini/Visit/Simple.pm',

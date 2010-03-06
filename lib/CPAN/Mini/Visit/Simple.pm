@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 $VERSION = eval $VERSION; ## no critic
 
 use Archive::Extract;
@@ -28,6 +28,11 @@ sub new {
     my ($class, $args) = @_;
     my %data = ();
     if ( ! $args->{minicpan} ) {
+        # Work around a bug in CPAN::Mini:
+        # https://rt.cpan.org/Public/Bug/Display.html?id=55272
+        my $config_file = CPAN::Mini->config_file({});
+        croak "CPAN::Mini config file not located: $!"
+            unless ( defined $config_file and -e $config_file );
         my %config = CPAN::Mini->read_config;
         if (  $config{local} ) {
             $data{minicpan} = $config{local};
