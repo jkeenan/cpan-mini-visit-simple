@@ -3,6 +3,8 @@ examples/01-distros_with_xs.pl
 examples/02-build_distros_with_xs.pl
 examples/03-refresh_success_list.pl
 examples/04-visit_one_distro.pl
+examples/05-visit_multiple_distros.pl
+examples/lib/Helper.pm
 lib/CPAN/Mini/Visit/Simple.pm
 lib/CPAN/Mini/Visit/Simple.pod
 lib/CPAN/Mini/Visit/Simple/Auxiliary.pm

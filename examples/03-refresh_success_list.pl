@@ -6,6 +6,10 @@ use Data::Dumper;$Data::Dumper::Indent=1;
 use Carp;
 use Cwd;
 use CPAN::Mini::Visit::Simple;
+use lib qw( lib );
+use Helper qw(
+    successful_eumm_or_mb
+);
 
 =head1 NAME
 
@@ -13,7 +17,7 @@ use CPAN::Mini::Visit::Simple;
 
 =head1 SYNOPSIS
 
-    perl refresh_success_list.pl
+    perl 03-refresh_success_list.pl /path/to/successful_builds_list.txt
 
 =head1 DESCRIPTION
 
@@ -55,35 +59,26 @@ suitable for passing on to other methods (not illustrated).
 
 =cut
 
-my $cwd = cwd();
-my $builds_file = qq|$cwd/success.builds.txt|;
-my (@eumm_distros, @mb_distros);
-open my $IN, '<', $builds_file or croak;
-while (my $d = <$IN>) {
-    chomp $d;
-    my @data = split /:/, $d;
-    if ($data[1] eq 'EUMM') {
-        push @eumm_distros, $data[0];
-    }
-    elsif ($data[1] eq 'MB') {
-        push @mb_distros, $data[0];
-    }
-    else {
-        carp "$data[0] mysterious";
-    }
-}
-close $IN or croak;
-say "EUMM:  ", sprintf "%5d" => scalar @eumm_distros;
-say "MB:    ", sprintf "%5d" => scalar @mb_distros;
+croak "Must specify path to file holding list of successful builds"
+    unless (@ARGV == 1 and (-f $ARGV[0]));
+
+my $builds_file = shift @ARGV;
+my ($eumm_ref, $mb_ref) = successful_eumm_or_mb($builds_file);
+say "EUMM:  ", sprintf "%5d" => scalar @{$eumm_ref};
+say "MB:    ", sprintf "%5d" => scalar @{$mb_ref};
 
 my $self = CPAN::Mini::Visit::Simple->new();
 my $id_dir = $self->get_id_dir();
 my $refreshed_eumm_list_ref = $self->refresh_list( {
-    derived_list    => [ map { qq|$id_dir/$_| } @eumm_distros ],
+    derived_list    => [ map { qq|$id_dir/$_| } @{$eumm_ref} ],
 } );
 my $refreshed_mb_list_ref = $self->refresh_list( {
-    derived_list    => [ map { qq|$id_dir/$_| } @mb_distros ],
+    derived_list    => [ map { qq|$id_dir/$_| } @{$mb_ref} ],
 } );
 #say Dumper $refreshed_eumm_list_ref;
-say Dumper $refreshed_mb_list_ref;
+#say Dumper $refreshed_mb_list_ref;
+
+foreach my $eumm_xs_current (@{$refreshed_eumm_list_ref}) {
+    say $eumm_xs_current;
+}
 
