@@ -29,8 +29,14 @@ our $ARCHIVE_REGEX = qr{\.(
 sub dedupe_superseded {
     my $listref = shift;
     my (%version_seen, @newlist);
-    foreach my $distro (@$listref) {
-        my $dir   = dirname($distro);
+    DISTRO:  foreach my $distro (@$listref) {
+        my $dir;
+        eval { $dir   = dirname($distro); };
+        if ($@) {
+            say STDERR "Problem calling File::Basename::dirname on '$distro'";
+            say STDERR $@;
+            next DISTRO;
+        }
         my $base  = basename($distro);
         if ($base =~ m/^(.*)-([\d\.]+)(?:$ARCHIVE_REGEX)/) {
             my ($stem, $version) = ($1,$2);

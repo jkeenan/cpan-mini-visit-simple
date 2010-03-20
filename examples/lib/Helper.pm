@@ -145,17 +145,22 @@ sub prepare_list_of_random_distros {
     tie @all_good_eumm_xs_distros, 'Tie::File', $eumm_file
         or croak "Unable to tie";
     my $good_distro_count = scalar(@all_good_eumm_xs_distros);
-    my $rand = int(rand($good_distro_count));
-    for (my $i=0; $i<$count; $i++) {
-        my $idx = $rand + (3*$i);
-        if ($idx > $good_distro_count) {
-            $idx -= $good_distro_count;
+    unless ($count eq 'all') {
+        my $rand = int(rand($good_distro_count));
+        for (my $i=0; $i<$count; $i++) {
+            my $idx = $rand + (3*$i);
+            if ($idx > $good_distro_count) {
+                $idx -= $good_distro_count;
+            }
+            push @indices, $idx;
         }
-        push @indices, $idx;
+        #say Dumper \@indices;
+        foreach my $idx (@indices) {
+            push @selected_eumm_xs_distros, $all_good_eumm_xs_distros[$idx];
+        }
     }
-    #say Dumper \@indices;
-    foreach my $idx (@indices) {
-        push @selected_eumm_xs_distros, $all_good_eumm_xs_distros[$idx];
+    else {
+        push @selected_eumm_xs_distros, @all_good_eumm_xs_distros;
     }
     untie @all_good_eumm_xs_distros or croak "Unable to untie";
     #say Dumper \@selected_eumm_xs_distros;

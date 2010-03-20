@@ -45,7 +45,12 @@ croak "Must supply path to list of files with XS that build successfully with EU
     unless (-f $ARGV[0]);
 my $eumm_file = shift @ARGV;
 croak "Must supply number of distributions to be visited"
-    unless looks_like_number($ARGV[0]);
+    unless (
+        looks_like_number($ARGV[0])
+            or
+        $ARGV[0] eq 'all'
+    );
+
 my $count  = shift @ARGV;
 croak "Must path to alternate ParseXS"
     unless (-d $ARGV[0]);
