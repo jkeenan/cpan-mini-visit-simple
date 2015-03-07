@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.004';
+our $VERSION = '0.005';
 $VERSION = eval $VERSION; ## no critic
 
 use Archive::Extract;
@@ -22,7 +22,6 @@ use CPAN::Mini::Visit::Simple::Auxiliary qw(
     get_lookup_table
     normalize_version_number
 );
-#use Data::Dumper;$Data::Dumper::Indent=1;
 
 sub new {
     my ($class, $args) = @_;
@@ -80,8 +79,8 @@ sub identify_distros {
     }
 
     if ( defined $args->{pattern} ) {
-        croak "'pattern' is a regex, which means it must be a SCALAR ref"
-            unless (reftype($args->{pattern}) eq 'SCALAR');
+        croak "'pattern' is a regex, which means it must be a REGEXP ref"
+            unless (reftype($args->{pattern}) eq 'REGEXP');
     }
 
     my $found_ref = $self->_search_from_start_dir( $args );

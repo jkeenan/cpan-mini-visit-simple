@@ -197,7 +197,7 @@ $self = CPAN::Mini::Visit::Simple->new({});
 eval {
     $self->identify_distros( { pattern => [] } );
 };
-like($@, qr/'pattern' is a regex, which means it must be a SCALAR ref/,
+like($@, qr/'pattern' is a regex, which means it must be a REGEXP ref/,
     "Got expected error message when wrong type of value supplied to 'pattern'" );
 
 {
