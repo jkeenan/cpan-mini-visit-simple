@@ -19,13 +19,12 @@ use File::Spec;
 use File::Temp qw( tempdir );
 use Scalar::Util qw( looks_like_number );
 
-our $ARCHIVE_REGEX = qr{\.(
-    ?:tar\.(?:bz2|gz|Z) |
+our $ARCHIVE_REGEX = qr{\.(?:
+    tar\.(?:bz2|gz|Z) |
     t(?:gz|bz)          |
     zip                 |
     gz
-)$}ix;
-
+)$}ix; 
 sub dedupe_superseded {
     my $listref = shift;
     my (%version_seen, @newlist);
