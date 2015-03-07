@@ -11,8 +11,16 @@ use CPAN::Mini::Visit::Simple::Auxiliary qw(
 );
 use Carp;
 use File::Spec;
-use Test::More tests => 38;
-#use Data::Dumper;$Data::Dumper::Indent=1;
+use Test::More;
+require CPAN::Mini;
+my $config_file = CPAN::Mini->config_file({});
+unless ( defined $config_file and -e $config_file ) {
+    plan skip_all => 'No .minicpanrc located';
+}
+else {
+    plan tests => 38;
+}
+
 
 {
     my ($tdir, $author_dir) = create_minicpan_for_testing();

@@ -12,7 +12,16 @@ use File::Path qw( make_path );
 use File::Spec;
 use File::Temp qw( tempdir );
 use IO::CaptureOutput qw( capture );
-use Test::More tests => 21;
+
+use Test::More;
+require CPAN::Mini;
+my $config_file = CPAN::Mini->config_file({});
+unless ( defined $config_file and -e $config_file ) {
+    plan skip_all => 'No .minicpanrc located';
+}
+else {
+    plan tests => 21;
+}
 
 my ( $self, $rv );
 my ( $real_id_dir, $start_dir, $cwd );
@@ -222,17 +231,6 @@ $rv = $self->identify_distros( {
     start_dir   => $thisauthor_dir,
 } );
 ok( $rv, "'identify_distros() returned true value" );
-#$rv = $self->visit( {
-#    action  => sub {
-#        my $distro = shift @_;
-#        if ( -f 'Makefile.PL' ) {
-#            say "$distro has Makefile.PL";
-#        }
-#        if ( -f 'Build.PL' ) {
-#            say "$distro has Build.PL";
-#        }
-#    },
-#} );
 {
     my ($stdout, $stderr);
     capture(

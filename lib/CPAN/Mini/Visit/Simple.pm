@@ -254,7 +254,7 @@ sub visit {
         if ( ( @children == 1 ) and ( -d $children[0] ) ) {
           chdir $children[0];
         }
-        
+
         &{$args->{action}}($proper_distro, @action_args);# execute command
     }
     return 1;

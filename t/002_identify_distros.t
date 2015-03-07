@@ -10,7 +10,16 @@ use File::Spec;
 use File::Temp qw( tempfile tempdir );
 use IO::CaptureOutput qw( capture );
 use Tie::File;
-use Test::More tests => 30;
+
+use Test::More;
+require CPAN::Mini;
+my $config_file = CPAN::Mini->config_file({});
+unless ( defined $config_file and -e $config_file ) {
+    plan skip_all => 'No .minicpanrc located';
+}
+else {
+    plan tests => 30;
+}
 
 my ( $self, $rv, @list, $phony_minicpan, $tdir, $id_dir );
 
@@ -190,7 +199,7 @@ like($@, qr/Directory $phony_minicpan not found/,
 $self = CPAN::Mini::Visit::Simple->new({});
 say STDERR "\nScanning your actual minicpan repository; this may take a minute";
 $self->identify_distros();
-ok( defined $self->{'start_dir'}, "'start_dir' assigned" );
+ok( defined $self->{'start_dir'}, "'start_dir' assigned: $self->{'start_dir'}" );
 ok( defined $self->{'list'}, "'list' assigned" );
 
 $self = CPAN::Mini::Visit::Simple->new({});

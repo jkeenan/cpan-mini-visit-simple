@@ -4,7 +4,16 @@
 
 use 5.010;
 use CPAN::Mini::Visit::Simple;
-use Test::More tests =>  6;
+use Test::More;
+require CPAN::Mini;
+my $config_file = CPAN::Mini->config_file({});
+unless ( defined $config_file and -e $config_file ) {
+    plan skip_all => 'No .minicpanrc located';
+}
+else {
+    plan tests =>  6;
+}
+
 
 my ( $self, @input_list, @output_list, $output_list, $output_ref );
 

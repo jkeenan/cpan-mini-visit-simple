@@ -12,7 +12,16 @@ use Carp;
 use File::Path qw( make_path );
 use File::Spec;
 use File::Temp qw( tempdir );
-use Test::More tests => 11;
+
+use Test::More;
+require CPAN::Mini;
+my $config_file = CPAN::Mini->config_file({});
+unless ( defined $config_file and -e $config_file ) {
+    plan skip_all => 'No .minicpanrc located';
+}
+else {
+    plan tests => 11;
+}
 
 {
     my ($tdir, $author_dir) = create_minicpan_for_testing();

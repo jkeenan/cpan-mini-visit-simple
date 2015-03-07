@@ -37,14 +37,14 @@ EOF
 
     my $self = CPAN::Mini::Visit::Simple->new();
     isa_ok ($self, 'CPAN::Mini::Visit::Simple');
-    
+
     $self = CPAN::Mini::Visit::Simple->new({});
     isa_ok ($self, 'CPAN::Mini::Visit::Simple');
-    
+
     my $real_minicpan = $self->get_minicpan;
     ok( ( -d $real_minicpan ),
         "Top minicpan directory exists: $real_minicpan" );
-    
+
     my $real_id_dir = $self->get_id_dir;
     ok( ( -d $real_id_dir ),
         "'authors/id/' directory exists: $real_id_dir" );
