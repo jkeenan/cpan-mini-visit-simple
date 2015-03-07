@@ -16,6 +16,7 @@ WriteMakefile(
     AUTHOR       => 'James E Keenan (jkeenan@cpan.org)',
     ABSTRACT     => 'Lightweight traversal of a minicpan repository',
     PREREQ_PM    => {
+                     'Archive::Extract' => 0,
                      'CPAN::Mini'   => 0,
                      'File::Find'   => 0,
                      'File::Spec'   => 0,
