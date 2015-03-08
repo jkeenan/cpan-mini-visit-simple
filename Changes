@@ -1,5 +1,9 @@
 Revision history for Perl module CPAN::Mini::Visit::Simple
 
+0.007 Sun Mar  8 08:25:06 EDT 2015
+    - Adjusts tests to fail more gracefully in situations reported by CPAN
+      testers.
+
 0.006 Sat Mar  7 20:05:56 EST 2015
     - Revise Makefile.PL to add metadata.
 
