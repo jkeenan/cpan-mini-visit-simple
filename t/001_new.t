@@ -35,6 +35,8 @@ EOF
     close $CONFIG or croak "Unable to close $config_file after writing";
     ok (-f $config_file, "config_file $config_file located for testing");
 
+    local $ENV{CPAN_MINI_CONFIG} = $config_file;
+
     my $self = CPAN::Mini::Visit::Simple->new();
     isa_ok ($self, 'CPAN::Mini::Visit::Simple');
 
