@@ -7,8 +7,15 @@ use CPAN::Mini::Visit::Simple;
 use Test::More;
 require CPAN::Mini;
 my $config_file = CPAN::Mini->config_file({});
-unless ( defined $config_file and -e $config_file ) {
+if (! (defined $config_file and -e $config_file) ) {
     plan skip_all => 'No .minicpanrc located';
+}
+my %config = CPAN::Mini->read_config;
+if (! $config{local}) {
+    plan skip_all => "No 'local' setting in configuration file '$config_file'";
+}
+elsif (! (-d $config{local}) ) {
+    plan skip_all => 'minicpan directory not located';
 }
 else {
     plan tests =>  6;
