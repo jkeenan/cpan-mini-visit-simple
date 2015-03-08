@@ -12,6 +12,10 @@ CVS/.*
 ~$
 ^#
 \.shar$
+\.tar$
+\.tgz$
+CPAN-Mini-Visit-Simple-.*\.tar\.gz$
+\.zip$
 \.DS_Store$
 _uu$
 \.svn

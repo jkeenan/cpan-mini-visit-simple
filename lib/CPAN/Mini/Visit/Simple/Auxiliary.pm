@@ -17,7 +17,6 @@ use File::Basename;
 use File::Path qw( make_path );
 use File::Spec;
 use File::Temp qw( tempdir );
-use Scalar::Util qw( looks_like_number );
 
 our $ARCHIVE_REGEX = qr{\.(?:
     tar\.(?:bz2|gz|Z) |

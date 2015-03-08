@@ -1,5 +1,8 @@
 Revision history for Perl module CPAN::Mini::Visit::Simple
 
+0.006 Sat Mar  7 20:05:56 EST 2015
+    - Revise Makefile.PL to add metadata.
+
 0.005 Sat Mar  7 19:09:12 EST 2015
     - Accommodate testing where no minicpan is installed
 
