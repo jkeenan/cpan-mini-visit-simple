@@ -158,7 +158,7 @@ eval {
         start_dir => $phony_minicpan,
     });
 };
-like($@, qr/Directory $phony_minicpan not found/,
+like($@, qr/\QDirectory $phony_minicpan not found\E/,
     "Got expected error message for bad 'start_dir' value" );
 
 {
@@ -179,7 +179,7 @@ like($@, qr/Directory $phony_minicpan not found/,
             start_dir => $phony_start_dir,
         });
     };
-    like($@, qr/Directory $phony_start_dir must be subdirectory of $id_dir/,
+    like($@, qr/\QDirectory $phony_start_dir must be subdirectory of $id_dir\E/,
         "Got expected error message for 'start_dir' that is not subdir of authors/id/" );
 }
 

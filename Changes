@@ -1,5 +1,8 @@
 Revision history for Perl module CPAN::Mini::Visit::Simple
 
+0.008 Mon Mar  9 20:37:34 EDT 2015
+    - Address test failures on Windows reported on cpantesters.
+
 0.007 Sun Mar  8 08:25:06 EDT 2015
     - Adjusts tests to fail more gracefully in situations reported by CPAN
       testers.

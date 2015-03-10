@@ -62,7 +62,7 @@ EOF
             minicpan => $phony_minicpan,
         });
     };
-    like($@, qr/Directory $phony_minicpan not found/,
+    like($@, qr/\QDirectory $phony_minicpan not found\E/,
         "Got expected error message for non-existent minicpan directory" );
 }
 
@@ -75,7 +75,7 @@ EOF
             minicpan => $tdir,
         });
     };
-    like($@, qr/Absence of $id_dir implies no valid minicpan/,
+    like($@, qr/\QAbsence of $id_dir implies no valid minicpan\E/,
         "Got expected error message for malformed minicpan repository" );
 }
 
