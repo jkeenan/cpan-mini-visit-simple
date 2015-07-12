@@ -55,7 +55,7 @@ else {
     my ( $tdir, $id_dir, $author_dir );
     my ( @source_list );
     # Prepare the test by creating a minicpan in a temporary directory.
-    $tdir = tempdir();
+    $tdir = tempdir( CLEANUP => 1 );
     $id_dir = File::Spec->catdir($tdir, qw/authors id/);
     make_path($id_dir, { mode => 0711 });
     ok( -d $id_dir, "'authors/id' directory created for testing" );

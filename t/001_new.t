@@ -16,7 +16,7 @@ BEGIN { use_ok( 'CPAN::Mini::Visit::Simple' ); }
 # distribution is tested by CPAN Testers).
 
 {
-    my $tdir = tempdir();
+    my $tdir = tempdir( CLEANUP => 1 );
     my $testing_minicpan_dir = File::Spec->catdir($tdir, 'minicpan');
     make_path($testing_minicpan_dir, { mode => 0711 });
     ok( -d $testing_minicpan_dir, "'minicpan' directory created for testing" );
@@ -68,7 +68,7 @@ EOF
 
 {
     my ($tdir, $id_dir, $self);
-    $tdir = tempdir();
+    $tdir = tempdir( CLEANUP => 1 );
     $id_dir = File::Spec->catdir($tdir, qw/authors id/);
     eval {
         $self = CPAN::Mini::Visit::Simple->new({
@@ -81,7 +81,7 @@ EOF
 
 {
     my ($tdir, $id_dir, $self, $author_dir);
-    $tdir = tempdir();
+    $tdir = tempdir( CLEANUP => 1 );
     $id_dir = File::Spec->catdir($tdir, qw/authors id/);
     make_path($id_dir, { mode => 0711 });
     ok( -d $id_dir, "'authors/id' directory created for testing" );
