@@ -368,8 +368,6 @@ Returns true value upon success.
 
 =cut
 
-=cut
-
 =head1 BUGS
 
 Report bugs at
@@ -379,7 +377,6 @@ F<https://rt.cpan.org/Public/Bug/Report.html?Queue=CPAN-Mini-Visit-Simple>.
 
     James E Keenan
     CPAN ID: jkeenan
-    Perl Seminar NY
     jkeenan@cpan.org
     http://thenceforward.net/perl/modules/CPAN-Mini-Visit-Simple/
 
