@@ -149,6 +149,7 @@ like($@, qr/Value of 'list' must be non-empty/,
     };
     like($@, qr/Need 'file' element in hashref/,
         "'say_list()' requires 'file' element in hashref" );
+    unlink $tfile;
 }
 
 $self = CPAN::Mini::Visit::Simple->new({});
