@@ -256,6 +256,7 @@ sub visit {
         }
 
         &{$args->{action}}($proper_distro, @action_args);# execute command
+        chdir $here or croak "Unable to change back to starting point";
     }
     return 1;
 }
