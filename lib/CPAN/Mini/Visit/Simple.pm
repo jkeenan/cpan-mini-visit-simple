@@ -238,6 +238,7 @@ sub visit {
                 open STDERR, ">&", $olderr;
                 close $olderr;
             }
+            chdir $here or croak "Unable to change back to starting point";
             next LIST;
         };
 
