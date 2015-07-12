@@ -217,7 +217,7 @@ sub visit {
         @action_args = @{ $args->{action_args} };
     }
     my $here = cwd();
-    foreach my $distro ( @{$self->{list}} ) {
+    LIST: foreach my $distro ( @{$self->{list}} ) {
         my $proper_distro = q{};
         my $real_id_dir = $self->get_id_dir();
         if ( $distro =~ m|$real_id_dir/(.*)| ) {
@@ -232,8 +232,15 @@ sub visit {
         my $tdir = tempdir( CLEANUP => 1 );
         chdir $tdir or croak "Unable to change to temporary directory";
         my $ae = Archive::Extract->new( archive => $distro );
-        my $extract_ok;
-        eval { $extract_ok = $ae->extract( to => $tdir ); };
+        my $extract_ok = $ae->extract( to => $tdir ) or do {
+            warn "Unable to extract $distro; skipping";
+            if ( not $Archive::Extract::WARN ) {
+                open STDERR, ">&", $olderr;
+                close $olderr;
+            }
+            next LIST;
+        };
+
         # restore stderr if quiet
         if ( not $Archive::Extract::WARN ) {
             open STDERR, ">&", $olderr;
