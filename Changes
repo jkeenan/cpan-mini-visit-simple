@@ -1,5 +1,8 @@
 Revision history for Perl module CPAN::Mini::Visit::Simple
 
+0.009 Sun Jul 12 17:55:29 EDT 2015
+    - More thorough cleanup of temporary directories.
+
 0.008 Mon Mar  9 20:37:34 EDT 2015
     - Address test failures on Windows reported on cpantesters.
 
