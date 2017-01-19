@@ -25,7 +25,7 @@ elsif (! (-d $config{local}) ) {
     plan skip_all => 'minicpan directory not located';
 }
 else {
-    plan tests => 30;
+    plan tests => 31;
 }
 
 my ( $self, $rv, @list, $phony_minicpan, $tdir, $id_dir );
@@ -209,6 +209,14 @@ say STDERR "\nScanning your actual minicpan repository; this may take a minute";
 $self->identify_distros();
 ok( defined $self->{'start_dir'}, "'start_dir' assigned: $self->{'start_dir'}" );
 ok( defined $self->{'list'}, "'list' assigned" );
+my @distros_found = $self->get_list();
+my @unwanted_tarballs = ();
+my $modules_dir = $self->get_minicpan() . 'modules';
+for my $k (@distros_found) {
+    push @unwanted_tarballs, $k if $k =~ m{$modules_dir};
+}
+is(scalar(@unwanted_tarballs), 0, "Excluded tarballs in minicpan/modules")
+    or pp(\@unwanted_tarballs);
 
 $self = CPAN::Mini::Visit::Simple->new({});
 eval {

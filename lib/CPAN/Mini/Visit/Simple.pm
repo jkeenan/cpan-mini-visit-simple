@@ -75,7 +75,7 @@ sub identify_distros {
         $self->{start_dir} = $args->{start_dir};
     }
     else {
-        $self->{start_dir} = $self->{minicpan};
+        $self->{start_dir} = $self->{id_dir};
     }
 
     if ( defined $args->{pattern} ) {
