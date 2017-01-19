@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.009';
+our $VERSION = '0.010';
 $VERSION = eval $VERSION; ## no critic
 
 use Archive::Extract;
@@ -22,6 +22,7 @@ use CPAN::Mini::Visit::Simple::Auxiliary qw(
     get_lookup_table
     normalize_version_number
 );
+use Data::Dump qw(pp);
 
 sub new {
     my ($class, $args) = @_;
@@ -193,7 +194,7 @@ sub refresh_list {
 sub visit {
     my ($self, $args) = @_;
     no warnings 'once';
-    local $Archive::Extract::PREFER_BIN = 1;
+    local $Archive::Extract::PREFER_BIN = 0;
     use warnings 'once';
     local $Archive::Extract::WARN = $args->{quiet} ? 0 : 1;
     croak "Must have a list of distributions on which to take action"
@@ -232,8 +233,20 @@ sub visit {
         my $tdir = tempdir( CLEANUP => 1 );
         chdir $tdir or croak "Unable to change to temporary directory";
         my $ae = Archive::Extract->new( archive => $distro );
-        my $extract_ok = $ae->extract( to => $tdir ) or do {
-            warn "Unable to extract $distro; skipping";
+        #        say STDERR "AAA: $distro: <$ae>";pp($ae);
+#        my $extract_ok = $ae->extract( to => $tdir ) or do {
+#            warn "Unable to extract $distro; skipping";
+#            if ( not $Archive::Extract::WARN ) {
+#                open STDERR, ">&", $olderr;
+#                close $olderr;
+#            }
+#            chdir $here or croak "Unable to change back to starting point";
+#            next LIST;
+#        };
+        my $extract_ok;
+        eval { $extract_ok = $ae->extract( to => $tdir ) or warn $ae->error(1); };
+        if ($!) {
+            warn "Unable to extract $distro; skipping; error was $!";
             if ( not $Archive::Extract::WARN ) {
                 open STDERR, ">&", $olderr;
                 close $olderr;
@@ -241,6 +254,7 @@ sub visit {
             chdir $here or croak "Unable to change back to starting point";
             next LIST;
         };
+        #        say STDERR "BBB:";
 
         # restore stderr if quiet
         if ( not $Archive::Extract::WARN ) {
@@ -255,6 +269,7 @@ sub visit {
             carp "Couldn't extract '$distro'";
             return;
         }
+        #        say STDERR "CCC:";
         # most distributions unpack a single directory that we must enter
         # but some behave poorly and unpack to the current directory
         my $dir = Path::Class::Dir->new();
