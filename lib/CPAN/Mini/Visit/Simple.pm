@@ -193,7 +193,7 @@ sub refresh_list {
 sub visit {
     my ($self, $args) = @_;
     no warnings 'once';
-    local $Archive::Extract::PREFER_BIN = 0;
+    local $Archive::Extract::PREFER_BIN = 1;
     use warnings 'once';
     local $Archive::Extract::WARN = $args->{quiet} ? 0 : 1;
     croak "Must have a list of distributions on which to take action"
