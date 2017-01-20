@@ -55,7 +55,7 @@ above.
 
 =back
 
-=head1 SUBROUTINES
+=head1 METHODS
 
 =head2 C<new()>
 
@@ -89,6 +89,44 @@ CPAN::Mini::Visit::Simple object.
 
 =back
 
+=head2 C<get_minicpan()>
+
+=over 4
+
+=item * Purpose
+
+Get the full path to the local F<minicpan/> installation as stored within the object.
+
+=item * Arguments
+
+    $minicpan_dir = $self->get_minicpan();
+
+=item * Return Value
+
+String holding path to directory.
+
+=back
+
+=head2 C<get_id_dir()>
+
+=over 4
+
+=item * Purpose
+
+A minicpan installation, like CPAN itself, is structured with an
+F<authors/id/> directory underneath the top-level directory.  This method
+returns the full path to that directory as stored within the object.
+
+=item * Arguments
+
+    $id_dir_dir = $self->get_id_dir();
+
+=item * Return Value
+
+String holding path to directory.
+
+=back
+
 =head2 C<identify_distros()>
 
 =over 4
@@ -117,20 +155,6 @@ list.
 You may provide a hash reference with one or more of several elements.
 
 =over 4
-
-=item * C<list>
-
-    $minicpan_id_dir = '/home/user/minicpan/authors/id';
-    $rv = $self->identify_distros( {
-      list => [ 
-        "$minicpan_id_dir/D/DR/DROLSKY/Alzabo-0.92.tar.gz",
-        "$minicpan_id_dir/D/DR/DROLSKY/DateTime-0.53.tar.gz",
-        "$minicpan_id_dir/D/DR/DROLSKY/Params-Validate-0.95.tar.gz",
-      ],
-    } );
-
-If a C<list> element is used, its value must be a reference to an array
-holding an exact list of the minicpan distributions to be visited.
 
 =item * C<start_dir>
 
@@ -176,6 +200,40 @@ below the C<start_dir> which also match the C<pattern>.
 Returns true value -- though this is not particularly meaningful.  The list of
 distributions to be visited will be stored inside the object and can be
 accessed by other methods.
+
+=back
+
+=head2 C<identify_distros_from_derived_list()>
+
+=over 4
+
+=item * Purpose
+
+Similar to C<identify_distros()>, but used where, through human editing of a
+primary list, we have produced a B<derived_list>.
+
+=item * Arguments
+
+    $minicpan_id_dir = $self->get_id_dir();
+    $rv = $self->identify_distros_from_derived_list( {
+      list => [ 
+        "$minicpan_id_dir/D/DR/DROLSKY/Alzabo-0.92.tar.gz",
+        "$minicpan_id_dir/D/DR/DROLSKY/DateTime-0.53.tar.gz",
+        "$minicpan_id_dir/D/DR/DROLSKY/Params-Validate-0.95.tar.gz",
+      ],
+    } );
+
+Hash reference with single element whose key is C<list> and whose value is an
+array reference holding the full paths to the selected distribution archives.
+
+=item * Return Value
+
+Returns true value upon success.
+
+=item * Comment
+
+This method was present in earlier versions of this library but was
+incorrectly documented as an option for C<identify_distros()>.
 
 =back
 

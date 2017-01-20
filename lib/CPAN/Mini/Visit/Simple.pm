@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.010';
+our $VERSION = '0.009';
 $VERSION = eval $VERSION; ## no critic
 
 use Archive::Extract;
@@ -13,7 +13,7 @@ use Cwd;
 use File::Basename qw/ dirname basename /;
 use File::Find;
 use File::Spec;
-use File::Temp qw/ tempdir /;
+use File::Temp;
 use Path::Class;
 use Scalar::Util qw/ reftype /;
 use CPAN::Mini::Visit::Simple::Auxiliary qw(
@@ -76,7 +76,7 @@ sub identify_distros {
         $self->{start_dir} = $args->{start_dir};
     }
     else {
-        $self->{start_dir} = $self->{minicpan};
+        $self->{start_dir} = $self->{id_dir};
     }
 
     if ( defined $args->{pattern} ) {
@@ -230,31 +230,17 @@ sub visit {
             open $olderr, ">&STDERR";
             open STDERR, ">", File::Spec->devnull;
         }
-        my $tdir = tempdir( CLEANUP => 1 );
+        my $tdir = File::Temp->newdir();
         chdir $tdir or croak "Unable to change to temporary directory";
         my $ae = Archive::Extract->new( archive => $distro );
-        #        say STDERR "AAA: $distro: <$ae>";pp($ae);
-#        my $extract_ok = $ae->extract( to => $tdir ) or do {
-#            warn "Unable to extract $distro; skipping";
-#            if ( not $Archive::Extract::WARN ) {
-#                open STDERR, ">&", $olderr;
-#                close $olderr;
-#            }
-#            chdir $here or croak "Unable to change back to starting point";
-#            next LIST;
-#        };
-        my $extract_ok;
-        eval { $extract_ok = $ae->extract( to => $tdir ) or warn $ae->error(1); };
-        if ($!) {
-            warn "Unable to extract $distro; skipping; error was $!";
+        my $extract_ok = $ae->extract( to => $tdir ) or do {
+            warn "Unable to extract $distro; skipping";
             if ( not $Archive::Extract::WARN ) {
                 open STDERR, ">&", $olderr;
                 close $olderr;
             }
-            chdir $here or croak "Unable to change back to starting point";
             next LIST;
         };
-        #        say STDERR "BBB:";
 
         # restore stderr if quiet
         if ( not $Archive::Extract::WARN ) {
