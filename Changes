@@ -1,5 +1,9 @@
 Revision history for Perl module CPAN::Mini::Visit::Simple
 
+0.011 Thu Jan 19 22:27:26 EST 2017
+    - Revert to preferring binaries; much faster, fewer warnings.
+    - No change in functionality.
+
 0.010 Thu Jan 19 20:00:17 EST 2017
     - Functionality:  do not include tarballs under minicpan/modules/ in list
       of files to be traversed.
