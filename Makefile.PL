@@ -10,6 +10,7 @@ WriteMakefile(
     VERSION_FROM => 'lib/CPAN/Mini/Visit/Simple.pm',
     AUTHOR       => 'James E Keenan (jkeenan@cpan.org)',
     ABSTRACT     => 'Lightweight traversal of a minicpan repository',
+    MIN_PERL_VERSION => v5.10.0,
     PREREQ_PM    => {
                      'Archive::Extract' => 0.80,
                      'CPAN::Mini'   => 0,
