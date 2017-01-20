@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.009_001';
+our $VERSION = '0.009_002';
 $VERSION = eval $VERSION; ## no critic
 
 use Archive::Extract;
@@ -13,7 +13,7 @@ use Cwd;
 use File::Basename qw/ dirname basename /;
 use File::Find;
 use File::Spec;
-use File::Temp qw/ tempdir /;
+use File::Temp;
 use Path::Class;
 use Scalar::Util qw/ reftype /;
 use CPAN::Mini::Visit::Simple::Auxiliary qw(
@@ -229,7 +229,7 @@ sub visit {
             open $olderr, ">&STDERR";
             open STDERR, ">", File::Spec->devnull;
         }
-        my $tdir = tempdir( CLEANUP => 1 );
+        my $tdir = File::Temp->newdir();
         chdir $tdir or croak "Unable to change to temporary directory";
         my $ae = Archive::Extract->new( archive => $distro );
         my $extract_ok = $ae->extract( to => $tdir ) or do {
