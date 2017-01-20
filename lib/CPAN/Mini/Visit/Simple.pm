@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.009';
+our $VERSION = '0.010';
 $VERSION = eval $VERSION; ## no critic
 
 use Archive::Extract;
@@ -22,7 +22,6 @@ use CPAN::Mini::Visit::Simple::Auxiliary qw(
     get_lookup_table
     normalize_version_number
 );
-use Data::Dump qw(pp);
 
 sub new {
     my ($class, $args) = @_;
@@ -96,7 +95,7 @@ sub identify_distros_from_derived_list {
     croak "Bad argument 'pattern' provided to identify_distros_from_derived_list()"
         if exists $args->{pattern};
     croak "identify_distros_from_derived_list() needs 'list' element"
-        unless exists $args->{list}; 
+        unless exists $args->{list};
     croak "Value of 'list' must be array reference"
         unless reftype($args->{list}) eq 'ARRAY';
     croak "Value of 'list' must be non-empty"
@@ -255,7 +254,6 @@ sub visit {
             carp "Couldn't extract '$distro'";
             return;
         }
-        #        say STDERR "CCC:";
         # most distributions unpack a single directory that we must enter
         # but some behave poorly and unpack to the current directory
         my $dir = Path::Class::Dir->new();

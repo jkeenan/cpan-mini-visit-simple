@@ -1,5 +1,15 @@
 Revision history for Perl module CPAN::Mini::Visit::Simple
 
+0.010 Thu Jan 19 20:00:17 EST 2017
+    - Functionality:  do not include tarballs under minicpan/modules/ in list
+      of files to be traversed.
+    - Implementation: move to Archive::Extract v0.80.  Create temporary
+      directories during visit() with File::Temp::newdir() rather tempdir();
+      newdir() appears to be faster.  Do not prefer binaries; prefer Perl
+      versions.
+    - Correct and improve documentation, especially for
+      identify_distros_from_derived_list().
+
 0.009 Sun Jul 12 17:55:29 EDT 2015
     - More thorough cleanup of temporary directories.
 

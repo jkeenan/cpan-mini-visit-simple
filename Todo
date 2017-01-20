@@ -1,7 +1,2 @@
 TODO list for Perl module CPAN::Mini::Visit::Simple
 
-1.  When traversing a minicpan, certain distributions cannot be unpacked with
-'tar' (cf.: https://rt.cpan.org/Public/Bug/Display.html?id=55044).  This
-causes Archive::Extract->new() to die, which currently causes the traversal
-program to die.  We may have to institute a blacklist of distributions which
-should not be visited -- but developing this list will be painful.

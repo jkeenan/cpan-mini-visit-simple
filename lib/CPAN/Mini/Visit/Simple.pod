@@ -216,7 +216,7 @@ primary list, we have produced a B<derived_list>.
 
     $minicpan_id_dir = $self->get_id_dir();
     $rv = $self->identify_distros_from_derived_list( {
-      list => [ 
+      list => [
         "$minicpan_id_dir/D/DR/DROLSKY/Alzabo-0.92.tar.gz",
         "$minicpan_id_dir/D/DR/DROLSKY/DateTime-0.53.tar.gz",
         "$minicpan_id_dir/D/DR/DROLSKY/Params-Validate-0.95.tar.gz",
