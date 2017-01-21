@@ -438,6 +438,14 @@ F<https://rt.cpan.org/Public/Bug/Report.html?Queue=CPAN-Mini-Visit-Simple>.
     jkeenan@cpan.org
     http://thenceforward.net/perl/modules/CPAN-Mini-Visit-Simple/
 
+=head1 ADDITIONAL CONTRIBUTORS
+
+=over 4
+
+=item * Mohammad S Anwar
+
+=back
+
 =head1 COPYRIGHT
 
 This program is free software; you can redistribute
