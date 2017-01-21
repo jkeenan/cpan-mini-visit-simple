@@ -56,7 +56,7 @@ else {
     } );
 
     my $expected_list_ref = {
-        map { my $path = qq|$author_dir/$_|; $path => 1 } qw(
+        map { my $path = File::Spec->catfile($author_dir, $_); $path => 1 } qw(
             Alpha-Beta-0.01.tar.gz
             Gamma-Delta-0.02.tar.gz
             Epsilon-Zeta-0.04.tar.gz
@@ -121,7 +121,7 @@ else {
     } );
 
     my $expected_list_ref = {
-        map { my $path = qq|$author_dir/$_|; $path => 1 } qw(
+        map { my $path = File::Spec->catfile($author_dir, $_); $path => 1 } qw(
             Alpha-Beta-0.01.tar.gz
             Gamma-Delta-0.02.tar.gz
             Epsilon-Zeta-0.03.tar.gz

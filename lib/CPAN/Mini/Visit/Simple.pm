@@ -71,7 +71,7 @@ sub identify_distros {
         croak "Directory $args->{start_dir} not found"
             unless (-d $args->{start_dir} );
         croak "Directory $args->{start_dir} must be subdirectory of $self->{id_dir}"
-            unless ( $args->{start_dir} =~ m/$self->{id_dir}/ );
+            unless ( $args->{start_dir} =~ m/\Q$self->{id_dir}\E/ );
         $self->{start_dir} = $args->{start_dir};
     }
     else {

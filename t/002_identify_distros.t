@@ -213,7 +213,7 @@ my @distros_found = $self->get_list();
 my @unwanted_tarballs = ();
 my $modules_dir = $self->get_minicpan() . 'modules';
 for my $k (@distros_found) {
-    push @unwanted_tarballs, $k if $k =~ m{$modules_dir};
+    push @unwanted_tarballs, $k if $k =~ m{\Q$modules_dir\E};
 }
 is(scalar(@unwanted_tarballs), 0, "Excluded tarballs in minicpan/modules")
     or pp(\@unwanted_tarballs);
@@ -227,7 +227,7 @@ like($@, qr/'pattern' is a regex, which means it must be a REGEXP ref/,
 
 {
     $self = CPAN::Mini::Visit::Simple->new({});
-    my $start_dir = $self->{id_dir} . q{/J/JK/JKEENAN};
+    my $start_dir = File::Spec->catdir($self->{id_dir}, qw/ J JK JKEENAN /);
     ok(
         $self->identify_distros( { start_dir => $start_dir, } ),
         "'identify_distros() returned true value"
@@ -253,11 +253,11 @@ like($@, qr/'pattern' is a regex, which means it must be a REGEXP ref/,
 
 {
     $self = CPAN::Mini::Visit::Simple->new({});
-    my $start_dir = $self->{id_dir} . q{/J/JK/JKEENAN};
+    my $start_dir = File::Spec->catdir($self->{id_dir}, qw/ J JK JKEENAN /);
     my $pattern = qr/ExtUtils-ModuleMaker/;
     my %distro_args = (
-            start_dir => $start_dir,
-            pattern   => $pattern,
+        start_dir => $start_dir,
+        pattern   => $pattern,
     );
     ok( $self->identify_distros( \%distro_args ),
         "'identify_distros() returned true value" );
