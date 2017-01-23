@@ -215,16 +215,16 @@ like($@, qr/$pattern/,
     "Got expected error message:  'action_args' must be an array reference" );
 
 # Case 10: Badly formatted archive
-my $archive = qq|$cwd/t/data/mydistro.tar.gz|;
+my $archive = File::Spec->catfile( $cwd, qw( t data mydistro.tar.gz ));
 ok( -f $archive, "Able to locate archive prior to testing" );
 my $tdir = tempdir(CLEANUP => 1);
 chdir $tdir or croak "Unable to change to tempdir";
 
-$id_dir = File::Spec->catdir($tdir, qw/authors id/);
+$id_dir = File::Spec->catdir($tdir, qw( authors id ));
 make_path($id_dir, { mode => 0711 });
 ok( -d $id_dir, "'authors/id' directory created for testing" );
 
-my $thisauthor_dir = File::Spec->catdir($id_dir, qw/ Z /);
+my $thisauthor_dir = File::Spec->catdir($id_dir, qw( Z ));
 make_path($thisauthor_dir, { mode => 0711 });
 ok( -d $thisauthor_dir, "directory created for testing" );
 my $copy_archive = File::Spec->catfile($thisauthor_dir, basename($archive));

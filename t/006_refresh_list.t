@@ -66,7 +66,7 @@ else {
         { map { $_ => 1 } @{$refreshed_list_ref} },
         $expected_list_ref,
         "Got expected refreshed list"
-    );
+    ) or diag explain($refreshed_list_ref, $expected_list_ref);
 }
 
 {
@@ -131,6 +131,6 @@ else {
         { map { $_ => 1 } @{$refreshed_list_ref} },
         $expected_list_ref,
         "Got expected refreshed list"
-    );
+    ) or diag explain($refreshed_list_ref, $expected_list_ref);
 }
 

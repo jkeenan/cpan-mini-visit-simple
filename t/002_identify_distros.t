@@ -165,10 +165,10 @@ like($@, qr/\QDirectory $phony_minicpan not found\E/,
 {
     $tdir = tempdir( CLEANUP => 1 );
     ok( -d $tdir, "tempdir directory created for testing" );
-    $id_dir = File::Spec->catdir($tdir, qw/authors id/);
+    $id_dir = File::Spec->catdir($tdir, qw( authors id ));
     make_path($id_dir, { mode => 0711 });
     ok( -d $id_dir, "'authors/id' directory created for testing" );
-    my $phony_start_dir = File::Spec->catdir($tdir, qw/foo bar/);
+    my $phony_start_dir = File::Spec->catdir($tdir, qw( foo bar ));
     make_path($phony_start_dir, { mode => 0711 });
     ok( -d $phony_start_dir, "'start_dir' directory created for testing" );
     $self = CPAN::Mini::Visit::Simple->new({
@@ -187,10 +187,10 @@ like($@, qr/\QDirectory $phony_minicpan not found\E/,
 {
     $tdir = tempdir( CLEANUP => 1 );
     ok( -d $tdir, "tempdir directory created for testing" );
-    $id_dir = File::Spec->catdir($tdir, qw/authors id/);
+    $id_dir = File::Spec->catdir($tdir, qw( authors id ));
     make_path($id_dir, { mode => 0711 });
     ok( -d $id_dir, "'authors/id' directory created for testing" );
-    my $start_dir = File::Spec->catdir($id_dir, qw/foo bar/);
+    my $start_dir = File::Spec->catdir($id_dir, qw( foo bar ));
     make_path($start_dir, { mode => 0711 });
     ok( -d $start_dir, "'start_dir' directory created for testing" );
     $self = CPAN::Mini::Visit::Simple->new({
@@ -227,7 +227,7 @@ like($@, qr/'pattern' is a regex, which means it must be a REGEXP ref/,
 
 {
     $self = CPAN::Mini::Visit::Simple->new({});
-    my $start_dir = File::Spec->catdir($self->{id_dir}, qw/ J JK JKEENAN /);
+    my $start_dir = File::Spec->catdir($self->{id_dir}, qw( J JK JKEENAN ));
     ok(
         $self->identify_distros( { start_dir => $start_dir, } ),
         "'identify_distros() returned true value"
@@ -253,7 +253,7 @@ like($@, qr/'pattern' is a regex, which means it must be a REGEXP ref/,
 
 {
     $self = CPAN::Mini::Visit::Simple->new({});
-    my $start_dir = File::Spec->catdir($self->{id_dir}, qw/ J JK JKEENAN /);
+    my $start_dir = File::Spec->catdir($self->{id_dir}, qw( J JK JKEENAN ));
     my $pattern = qr/ExtUtils-ModuleMaker/;
     my %distro_args = (
         start_dir => $start_dir,

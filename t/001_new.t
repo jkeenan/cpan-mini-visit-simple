@@ -69,7 +69,7 @@ EOF
 {
     my ($tdir, $id_dir, $self);
     $tdir = tempdir( CLEANUP => 1 );
-    $id_dir = File::Spec->catdir($tdir, qw/authors id/);
+    $id_dir = File::Spec->catdir($tdir, qw( authors id ));
     eval {
         $self = CPAN::Mini::Visit::Simple->new({
             minicpan => $tdir,
@@ -82,7 +82,7 @@ EOF
 {
     my ($tdir, $id_dir, $self, $author_dir);
     $tdir = tempdir( CLEANUP => 1 );
-    $id_dir = File::Spec->catdir($tdir, qw/authors id/);
+    $id_dir = File::Spec->catdir($tdir, qw( authors id ));
     make_path($id_dir, { mode => 0711 });
     ok( -d $id_dir, "'authors/id' directory created for testing" );
     $author_dir = File::Spec->catdir($id_dir, qw( A AA AARDVARK ) );

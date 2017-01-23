@@ -10,12 +10,12 @@ use Archive::Extract;
 use Carp;
 use CPAN::Mini ();
 use Cwd;
-use File::Basename qw/ dirname basename /;
+use File::Basename qw( dirname basename );
 use File::Find;
 use File::Spec;
 use File::Temp;
 use Path::Class;
-use Scalar::Util qw/ reftype /;
+use Scalar::Util qw( reftype );
 use CPAN::Mini::Visit::Simple::Auxiliary qw(
     $ARCHIVE_REGEX
     dedupe_superseded
@@ -43,7 +43,7 @@ sub new {
     croak "Directory $data{minicpan} not found"
         unless (-d $data{minicpan});
 
-    my $id_dir = File::Spec->catdir($data{minicpan}, qw/authors id/);
+    my $id_dir = File::Spec->catdir($data{minicpan}, qw( authors id ));
     croak "Absence of $id_dir implies no valid minicpan"
         unless -d $id_dir;
     $data{id_dir} = $id_dir;
