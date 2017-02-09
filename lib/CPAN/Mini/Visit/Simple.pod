@@ -444,6 +444,8 @@ F<https://rt.cpan.org/Public/Bug/Report.html?Queue=CPAN-Mini-Visit-Simple>.
 
 =item * Mohammad S Anwar
 
+=item * Charlie Gonzalez
+
 =back
 
 =head1 COPYRIGHT
