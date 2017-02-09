@@ -220,9 +220,10 @@ sub visit {
     LIST: foreach my $distro ( @{$self->{list}} ) {
         my $proper_distro = q{};
         my $real_id_dir = $self->get_id_dir();
-        if ( $distro =~ m|$real_id_dir/(.*)| ) {
-            $proper_distro = $1;
+        if ( $distro =~ m|\Q$real_id_dir\E| ) {
+            $proper_distro = basename($distro);
         }
+
         my $olderr;
         # stderr > /dev/null if quiet
         if ( not  $Archive::Extract::WARN ) {
