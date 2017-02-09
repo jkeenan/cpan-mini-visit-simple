@@ -1,5 +1,9 @@
 Revision history for Perl module CPAN::Mini::Visit::Simple
 
+0.014 Wed Feb  8 22:16:32 EST 2017
+    - Canonicalize one path to make path separators behave correctly
+      on Windows.
+
 0.013 Mon Jan 23 13:26:40 EST 2017
     - Add 1 example program.  Some code cleanup.
     - No change in functionality.
