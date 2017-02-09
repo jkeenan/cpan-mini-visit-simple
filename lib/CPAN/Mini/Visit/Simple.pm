@@ -117,7 +117,7 @@ sub _search_from_start_dir {
                 if ( defined $args->{pattern} ) {
                     return unless $_ =~ m/$args->{pattern}/;
                 }
-                push @found, $File::Find::name;
+                push @found, File::Spec->canonpath($File::Find::name);
             },
         },
         $self->{start_dir},
