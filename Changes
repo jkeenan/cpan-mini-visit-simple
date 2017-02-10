@@ -1,4 +1,7 @@
 Revision history for Perl module CPAN::Mini::Visit::Simple
+0.015 Fri Feb 10 08:27:21 EST 2017
+    - Further path separator corrections, made with great assistance
+      from Charlie Gonzalez.
 
 0.014 Wed Feb  8 22:16:32 EST 2017
     - Canonicalize one path to make path separators behave correctly

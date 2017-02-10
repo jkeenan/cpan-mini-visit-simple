@@ -3,7 +3,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION = '0.014';
+our $VERSION = '0.015';
 $VERSION = eval $VERSION; ## no critic
 
 use Archive::Extract;
