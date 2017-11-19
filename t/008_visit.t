@@ -12,6 +12,7 @@ use File::Path qw( make_path );
 use File::Spec;
 use File::Temp qw( tempdir );
 use IO::CaptureOutput qw( capture );
+use Data::Dump qw(dd pp);
 
 use Test::More;
 require CPAN::Mini;
@@ -27,7 +28,7 @@ elsif (! (-d $config{local}) ) {
     plan skip_all => 'minicpan directory not located';
 }
 else {
-    plan tests => 21;
+    plan tests => 24;
 }
 
 my ( $self, $rv );
@@ -214,34 +215,72 @@ eval {
 like($@, qr/$pattern/,
     "Got expected error message:  'action_args' must be an array reference" );
 
-# Case 10: Badly formatted archive
-my $archive = File::Spec->catfile( $cwd, qw( t data mydistro.tar.gz ));
-ok( -f $archive, "Able to locate archive prior to testing" );
-my $tdir = tempdir(CLEANUP => 1);
-chdir $tdir or croak "Unable to change to tempdir";
+{
+    # Case 10: Badly formatted archive
+    my $archive = File::Spec->catfile( $cwd, qw( t data mydistro.tar.gz ));
+    ok( -f $archive, "Able to locate archive prior to testing" );
+    my $tdir = tempdir(CLEANUP => 1);
+    chdir $tdir or croak "Unable to change to tempdir";
+    
+    $id_dir = File::Spec->catdir($tdir, qw( authors id ));
+    make_path($id_dir, { mode => 0711 });
+    ok( -d $id_dir, "'authors/id' directory created for testing" );
+    
+    my $thisauthor_dir = File::Spec->catdir($id_dir, qw( Z ));
+    make_path($thisauthor_dir, { mode => 0711 });
+    ok( -d $thisauthor_dir, "directory created for testing" );
+    my $copy_archive = File::Spec->catfile($thisauthor_dir, basename($archive));
+    copy $archive => $copy_archive or croak "Unable to copy archive";
+    
+    $self = CPAN::Mini::Visit::Simple->new({
+        minicpan => $tdir,
+    });
+    isa_ok ($self, 'CPAN::Mini::Visit::Simple');
+    $rv = $self->identify_distros( {
+        start_dir   => $thisauthor_dir,
+    } );
+    ok( $rv, "'identify_distros() returned true value" );
+    {
+        my ($stdout, $stderr);
+        capture(
+            sub {
+                $rv = $self->visit( {
+                    action  => sub {
+                        my $distro = shift @_;
+                        if ( -f 'Makefile.PL' ) {
+                            say "$distro has Makefile.PL";
+                        }
+                        if ( -f 'Build.PL' ) {
+                            say "$distro has Build.PL";
+                        }
+                    },
+                } );
+            },
+            \$stdout,
+            \$stderr,
+        );
+        ok( $rv, "'visit()' returned true value" );
+        like($stdout,
+            qr/\.tar\.gz has Makefile\.PL/s,
+            "Got expected STDOUT"
+        );
+    }
+    chdir $cwd or croak "Unable to change back to '$cwd'";
+}
 
-$id_dir = File::Spec->catdir($tdir, qw( authors id ));
-make_path($id_dir, { mode => 0711 });
-ok( -d $id_dir, "'authors/id' directory created for testing" );
 
-my $thisauthor_dir = File::Spec->catdir($id_dir, qw( Z ));
-make_path($thisauthor_dir, { mode => 0711 });
-ok( -d $thisauthor_dir, "directory created for testing" );
-my $copy_archive = File::Spec->catfile($thisauthor_dir, basename($archive));
-copy $archive => $copy_archive or croak "Unable to copy archive";
-
-$self = CPAN::Mini::Visit::Simple->new({
-    minicpan => $tdir,
-});
+$self = CPAN::Mini::Visit::Simple->new();
 isa_ok ($self, 'CPAN::Mini::Visit::Simple');
-$rv = $self->identify_distros( {
-    start_dir   => $thisauthor_dir,
+$real_id_dir = $self->get_id_dir();
+$start_dir = File::Spec->catdir( $real_id_dir, qw( J JK JKEENAN ) );
+ok( ( -d $start_dir ), "'start_dir' exists: $start_dir" );
+$rv = $self->identify_distros_with_path( {
+    start_dir   => $start_dir,
 } );
-ok( $rv, "'identify_distros() returned true value" );
 {
     my ($stdout, $stderr);
-    capture(
-        sub {
+    #    capture(
+    #    sub {
             $rv = $self->visit( {
                 action  => sub {
                     my $distro = shift @_;
@@ -253,13 +292,18 @@ ok( $rv, "'identify_distros() returned true value" );
                     }
                 },
             } );
-        },
-        \$stdout,
-        \$stderr,
-    );
+#        },
+#        \$stdout,
+#        \$stderr,
+#    );
     ok( $rv, "'visit()' returned true value" );
-    like($stdout,
-        qr/\.tar\.gz has Makefile\.PL/s,
-        "Got expected STDOUT"
-    );
+#    like($stdout,
+#        qr/List-Compare-.*?\.tar\.gz has Makefile\.PL/s,
+#        "Got expected STDOUT"
+#    );
+#    my $l = pp($stderr);
+#    my @lines = split(/\n/ => $l);
+#    pp(\@lines);
 }
+
+

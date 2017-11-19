@@ -10,6 +10,7 @@ use File::Spec;
 use File::Temp qw( tempfile tempdir );
 use IO::CaptureOutput qw( capture );
 use Tie::File;
+use Data::Dump qw(dd pp);
 
 use Test::More;
 require CPAN::Mini;
@@ -25,7 +26,8 @@ elsif (! (-d $config{local}) ) {
     plan skip_all => 'minicpan directory not located';
 }
 else {
-    plan tests => 31;
+    #plan tests => 31;
+    plan tests => 33;
 }
 
 my ( $self, $rv, @list, $phony_minicpan, $tdir, $id_dir );
@@ -278,3 +280,14 @@ like($@, qr/'pattern' is a regex, which means it must be a REGEXP ref/,
     is( $seen, scalar(@expected), "All distro names seen on STDOUT" );
 }
 
+{
+    $self = CPAN::Mini::Visit::Simple->new({});
+    my $start_dir = File::Spec->catdir($self->{id_dir}, qw( J JK JKEENAN ));
+    ok(
+        $self->identify_distros_with_path( { start_dir => $start_dir, } ),
+        "'identify_distros_with_path() returned true value"
+    );
+    my $list_ref = $self->get_list_ref();
+    pp($list_ref);
+    pass($0);
+}

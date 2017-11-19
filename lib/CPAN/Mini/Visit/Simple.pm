@@ -22,6 +22,7 @@ use CPAN::Mini::Visit::Simple::Auxiliary qw(
     get_lookup_table
     normalize_version_number
 );
+use Data::Dump qw(dd pp);
 
 sub new {
     my ($class, $args) = @_;
@@ -88,6 +89,34 @@ sub identify_distros {
     return 1;
 }
 
+sub identify_distros_with_path {
+    my ($self, $args) = @_;
+
+    croak "Bad argument 'list' provided to identify_distros()"
+        if exists $args->{list};
+
+    if ( defined $args->{start_dir} ) {
+        croak "Directory $args->{start_dir} not found"
+            unless (-d $args->{start_dir} );
+        croak "Directory $args->{start_dir} must be subdirectory of $self->{id_dir}"
+            unless ( $args->{start_dir} =~ m/\Q$self->{id_dir}\E/ );
+        $self->{start_dir} = $args->{start_dir};
+    }
+    else {
+        $self->{start_dir} = $self->{id_dir};
+    }
+
+    if ( defined $args->{pattern} ) {
+        croak "'pattern' is a regex, which means it must be a REGEXP ref"
+            unless (reftype($args->{pattern}) eq 'REGEXP');
+    }
+
+    $args->{longer_path}++;
+    my $found_ref = $self->_search_from_start_dir( $args );
+    $self->{list} = dedupe_superseded( $found_ref );
+    return 1;
+}
+
 sub identify_distros_from_derived_list {
     my ($self, $args) = @_;
     croak "Bad argument 'start_dir' provided to identify_distros_from_derived_list()"
@@ -106,6 +135,7 @@ sub identify_distros_from_derived_list {
 
 sub _search_from_start_dir {
     my ($self, $args) = @_;
+    dd($args);
     my @found = ();
     find(
         {
@@ -117,7 +147,17 @@ sub _search_from_start_dir {
                 if ( defined $args->{pattern} ) {
                     return unless $_ =~ m/$args->{pattern}/;
                 }
-                push @found, File::Spec->canonpath($File::Find::name);
+                my $dis;
+                if ($args->{longer_path}) {
+                    $dis = File::Spec->catfile(
+                        #                         File::Spec->canonpath($File::Find::dir),
+                         File::Spec->canonpath($File::Find::name),
+                    );
+                }
+                else {
+                    $dis = File::Spec->canonpath($File::Find::name);
+                }
+                push @found, $dis;
             },
         },
         $self->{start_dir},
@@ -223,6 +263,7 @@ sub visit {
         if ( $distro =~ m|\Q$real_id_dir\E| ) {
             $proper_distro = basename($distro);
         }
+print STDERR "YYY: ", join('|' => $distro, $proper_distro), "\n";
 
         my $olderr;
         # stderr > /dev/null if quiet
