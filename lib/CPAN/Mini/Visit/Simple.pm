@@ -22,7 +22,6 @@ use CPAN::Mini::Visit::Simple::Auxiliary qw(
     get_lookup_table
     normalize_version_number
 );
-use Data::Dump qw(dd pp);
 
 sub new {
     my ($class, $args) = @_;
@@ -107,7 +106,6 @@ sub identify_distros_from_derived_list {
 
 sub _search_from_start_dir {
     my ($self, $args) = @_;
-    dd($args);
     my @found = ();
     find(
         {
@@ -220,12 +218,6 @@ sub visit {
     }
     my $here = cwd();
     LIST: foreach my $distro ( @{$self->{list}} ) {
-        my $proper_distro = q{};
-        my $real_id_dir = $self->get_id_dir();
-        if ( $distro =~ m|\Q$real_id_dir\E| ) {
-            $proper_distro = basename($distro);
-        }
-print STDERR "YYY: ", join('|' => $distro, $proper_distro), "\n";
 
         my $olderr;
         # stderr > /dev/null if quiet
@@ -266,7 +258,7 @@ print STDERR "YYY: ", join('|' => $distro, $proper_distro), "\n";
           chdir $children[0];
         }
 
-        &{$args->{action}}($proper_distro, @action_args);# execute command
+        &{$args->{action}}($distro, @action_args);# execute command
         chdir $here or croak "Unable to change back to starting point";
     }
     return 1;

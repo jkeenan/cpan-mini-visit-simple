@@ -10,7 +10,6 @@ use File::Spec;
 use File::Temp qw( tempfile tempdir );
 use IO::CaptureOutput qw( capture );
 use Tie::File;
-use Data::Dump qw(dd pp);
 
 use Test::More;
 require CPAN::Mini;
@@ -216,8 +215,7 @@ my $modules_dir = $self->get_minicpan() . 'modules';
 for my $k (@distros_found) {
     push @unwanted_tarballs, $k if $k =~ m{\Q$modules_dir\E};
 }
-is(scalar(@unwanted_tarballs), 0, "Excluded tarballs in minicpan/modules")
-    or pp(\@unwanted_tarballs);
+is(scalar(@unwanted_tarballs), 0, "Excluded tarballs in minicpan/modules");
 
 $self = CPAN::Mini::Visit::Simple->new({});
 eval {
