@@ -28,7 +28,7 @@ elsif (! (-d $config{local}) ) {
     plan skip_all => 'minicpan directory not located';
 }
 else {
-    plan tests => 24;
+    plan tests => 21;
 }
 
 my ( $self, $rv );
@@ -267,43 +267,4 @@ like($@, qr/$pattern/,
     }
     chdir $cwd or croak "Unable to change back to '$cwd'";
 }
-
-
-$self = CPAN::Mini::Visit::Simple->new();
-isa_ok ($self, 'CPAN::Mini::Visit::Simple');
-$real_id_dir = $self->get_id_dir();
-$start_dir = File::Spec->catdir( $real_id_dir, qw( J JK JKEENAN ) );
-ok( ( -d $start_dir ), "'start_dir' exists: $start_dir" );
-$rv = $self->identify_distros_with_path( {
-    start_dir   => $start_dir,
-} );
-{
-    my ($stdout, $stderr);
-    #    capture(
-    #    sub {
-            $rv = $self->visit( {
-                action  => sub {
-                    my $distro = shift @_;
-                    if ( -f 'Makefile.PL' ) {
-                        say "$distro has Makefile.PL";
-                    }
-                    if ( -f 'Build.PL' ) {
-                        say "$distro has Build.PL";
-                    }
-                },
-            } );
-#        },
-#        \$stdout,
-#        \$stderr,
-#    );
-    ok( $rv, "'visit()' returned true value" );
-#    like($stdout,
-#        qr/List-Compare-.*?\.tar\.gz has Makefile\.PL/s,
-#        "Got expected STDOUT"
-#    );
-#    my $l = pp($stderr);
-#    my @lines = split(/\n/ => $l);
-#    pp(\@lines);
-}
-
 
