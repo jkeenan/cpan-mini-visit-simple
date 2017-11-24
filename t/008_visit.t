@@ -27,7 +27,7 @@ elsif (! (-d $config{local}) ) {
     plan skip_all => 'minicpan directory not located';
 }
 else {
-    plan tests => 25;
+    plan tests => 36;
 }
 
 my ( $self, $rv );
@@ -215,7 +215,7 @@ like($@, qr/$pattern/,
     "Got expected error message:  'action_args' must be an array reference" );
 
 {
-note("Case 10: Badly formatted archive");
+    note("Case 10: Sub-optimally formatted formatted archive");
     my $archive = File::Spec->catfile( $cwd, qw( t data mydistro.tar.gz ));
     ok( -f $archive, "Able to locate archive prior to testing" );
     my $tdir = tempdir(CLEANUP => 1);
@@ -295,10 +295,95 @@ note("Case 10: Badly formatted archive");
         },
     } );
     ok( $rv, "'visit()' returned true value" );
-    #is($build_generators{Makefile} + $build_generators{Build}, $output_count,
     is(scalar(keys %{$build_generators{Makefile}}) +
        scalar(keys %{$build_generators{Build}}),
        scalar(@output_list),
        "Each distro has a Makefile.PL or, if not that, a Build.PL");
 }
 
+note("Case 12:  Failure:  bad argument for 'do_not_visit' option");
+{
+    $self = CPAN::Mini::Visit::Simple->new();
+    isa_ok ($self, 'CPAN::Mini::Visit::Simple');
+    $real_id_dir = $self->get_id_dir();
+    $start_dir = File::Spec->catdir( $real_id_dir, qw( J JK JKEENAN ) );
+    ok( ( -d $start_dir ), "'start_dir' exists: $start_dir" );
+
+    $rv = $self->identify_distros( {
+        start_dir   => $start_dir,
+    } );
+    my %build_generators = ();
+    local $@;
+    eval {
+        $rv = $self->visit( {
+            do_not_visit => {},
+            action  => sub {
+                my $distro = shift @_;
+                if ( -f 'Makefile.PL' ) {
+                    $build_generators{Makefile}{$distro}++;
+                }
+                elsif ( -f 'Build.PL' ) {
+                    $build_generators{Build}{$distro}++;
+                }
+                else {
+                    $build_generators{unidentified}++;
+                }
+            },
+        } );
+    };
+    like($@, qr/'do_not_visit' must be array reference/,
+        "Got expected error message for bad argument for 'do_not_visit'");
+}
+
+note("Case 13:  Success:  'do_not_visit'");
+{
+    my $archive = File::Spec->catfile( $cwd, qw( t data Non-Visit-0.01.tar.gz ));
+    ok( -f $archive, "Able to locate archive prior to testing" );
+    my $tdir = tempdir(CLEANUP => 1);
+    ok( -d $tdir, "tempdir directory created for testing" );
+    $id_dir = File::Spec->catdir($tdir, qw( authors id ));
+    make_path($id_dir, { mode => 0711 });
+    ok( -d $id_dir, "'authors/id' directory created for testing" );
+    my $start_dir = File::Spec->catdir($id_dir, qw( Z ));
+    make_path($start_dir, { mode => 0711 });
+    ok( -d $start_dir, "'start_dir' directory created for testing" );
+
+    my $copy_archive = File::Spec->catfile($start_dir, basename($archive));
+    copy $archive => $copy_archive or croak "Unable to copy archive";
+
+    $self = CPAN::Mini::Visit::Simple->new({
+        minicpan => $tdir,
+    });
+    isa_ok ($self, 'CPAN::Mini::Visit::Simple');
+    $rv = $self->identify_distros( {
+        start_dir   => $start_dir,
+    } );
+    is( $self->{'start_dir'}, $start_dir,
+        "'start_dir' assigned as expected: $start_dir" );
+
+    my @output_list = $self->get_list();
+    my %build_generators = ();
+    $rv = $self->visit( {
+        do_not_visit => [
+            File::Spec->catfile( qw| authors id Z Non-Visit-0.01.tar.gz | ),
+        ],
+        action  => sub {
+            my $distro = shift @_;
+            if ( -f 'Makefile.PL' ) {
+                $build_generators{Makefile}{$distro}++;
+            }
+            elsif ( -f 'Build.PL' ) {
+                $build_generators{Build}{$distro}++;
+            }
+            else {
+                $build_generators{unidentified}++;
+            }
+        },
+    } );
+    ok( $rv, "'visit()' with 'do_not_visit' option returned true value" );
+    is(scalar(keys %{$build_generators{Makefile}}) +
+       scalar(keys %{$build_generators{Build}}),
+       0,
+       "Nothing visited, as expected"
+    );
+}

@@ -216,8 +216,28 @@ sub visit {
             );
         @action_args = @{ $args->{action_args} };
     }
+    if ( defined $args->{do_not_visit} ) {
+        croak "'do_not_visit' must be array reference"
+            unless (
+                ( defined reftype($args->{do_not_visit}) )
+                    and
+                ( reftype($args->{do_not_visit}) eq 'ARRAY' )
+            );
+    }
     my $here = cwd();
-    LIST: foreach my $distro ( @{$self->{list}} ) {
+    my @visit_list;
+    if ( defined $args->{do_not_visit} ) {
+        my %do_not_visit = map { File::Spec->catfile($self->{minicpan},$_) => 1 }
+            @{$args->{do_not_visit}};
+        for my $d (@{$self->{list}}) {
+            push @visit_list, $d unless $do_not_visit{$d};
+        }
+    }
+    else {
+        @visit_list = @{$self->{list}};
+    }
+
+    LIST: foreach my $distro (@visit_list) {
 
         my $olderr;
         # stderr > /dev/null if quiet
