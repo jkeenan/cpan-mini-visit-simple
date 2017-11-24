@@ -227,8 +227,7 @@ sub visit {
     my $here = cwd();
     my @visit_list;
     if ( defined $args->{do_not_visit} ) {
-        my %do_not_visit = map { File::Spec->catfile($self->{minicpan},$_) => 1 }
-            @{$args->{do_not_visit}};
+        my %do_not_visit = map { $_ => 1 } @{$args->{do_not_visit}};
         for my $d (@{$self->{list}}) {
             push @visit_list, $d unless $do_not_visit{$d};
         }
