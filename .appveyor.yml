@@ -1,7 +1,7 @@
 version: 1.0.{build}
 
-branches:
-  except:
+  #branches:
+  #  except:
 skip_tags: true
 
 cache:
